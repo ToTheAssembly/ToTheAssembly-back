@@ -1,17 +1,24 @@
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
-const mysql = require('mysql');
+const mysql2 = require('mysql2');
 
 const billRouter = require('./routes/bill');
 const memberRouter = require('./routes/member');
+const sequelize = require('./models').sequelize;
+const { swaggerUi, specs } = require('./swagger/swagger');
+
 const { appendFileSync } = require('fs');
 
 require("dotenv").config({ path: ".env" });
 
 const app = express();
 
-app.set('port', process.env.PORT || 3306);
+(async () => {
+    await sequelize.sync();
+})();
+
+app.set('port', process.env.PORT || 8001);
 
 app.use(morgan('dev'));
 app.use(express.json());
@@ -19,6 +26,8 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/bill', billRouter);
 app.use('/member', memberRouter);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true }));
 
 
 // 404 미들웨어
