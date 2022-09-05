@@ -25,8 +25,8 @@ db.Hashtag = require('./hashtag')(sequelize, Sequelize);
 
 // bill:hashtag = N:M (다대다 관계)
 // on delete cascade가 default
-db.Bill.belongsToMany(db.Hashtag, { through: 'BillHashtag' });
-db.Hashtag.belongsToMany(db.Bill, { through: 'BillHashtag' });
+db.Bill.belongsToMany(db.Hashtag, { through: 'BillHashtag', timestamps: false });
+db.Hashtag.belongsToMany(db.Bill, { through: 'BillHashtag', timestamps: false });
 
 
 module.exports = db;
