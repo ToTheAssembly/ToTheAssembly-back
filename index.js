@@ -24,8 +24,8 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/bill', billRouter);
-app.use('/member', memberRouter);
+app.use('/api/bill', billRouter);
+app.use('/api/member', memberRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true }));
 
@@ -42,7 +42,7 @@ app.use((err, req, res, next) => {
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
     res.status(err.status || 500);
-    res.render('error');
+    // res.render('error');
 });
 
 app.listen(app.get("port"), () => {
