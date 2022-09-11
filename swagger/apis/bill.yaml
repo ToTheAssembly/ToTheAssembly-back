@@ -1,0 +1,62 @@
+paths:
+  /api/bill/count:
+    get:
+      summary: "의안 개수 count"
+      description: "메인 페이지에서 필요한 이번주, 이번달, 21대 국회에서 발의한 의안 개수 반환"
+      tags: [Bill]
+      responses:
+        "200":
+          description: "이번주, 이번달, 21대 국회에서 발의한 의안 개수 count"
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                  thisWeek:
+                    type: integer
+                  thisMonth:
+                    type: integer
+                  totalCount:
+                    type: integer
+  
+  /api/bill/{billId}/similar:
+    get:
+      summary: "유사한 의안, 의원 조회"
+      description: "3개의 의안 ID와 4개의 의원 ID를 목록으로 반환. params에 bill의 id를 담아 get 요청, 다른 api 서버에서 반환된 유사한 의안, 의원 결과를 조회할 수 있도록 함."
+      tags: [Bill]
+      parameters:
+        - name: "billId"
+          in: "path"
+          required: true
+          description: "의안 ID"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "PRC_K2D2Y0Y8E1L9S1Z8I3M3B2O5J1Y8T5"
+              summary: "example bill ID"
+      responses:
+        "200":
+          description: "유사한 의안, 의원 목록"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  bills:
+                    type: array
+                    items:
+                      type: string
+                      description: array of 3 Bill IDs
+                    minItems: 3
+                    maxItems: 3
+                  members:
+                    type: array
+                    items:
+                      type: string
+                      description: array of 4 Member IDs
+                    minItems: 4
+                    maxItems: 4
