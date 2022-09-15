@@ -3,10 +3,11 @@ const express = require('express');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const mySQLStore = require('express-mysql-session')(session);
-const { Bill, Like } = require('../models');
+const { Bill, Like, Hashtag, Billhashtag } = require('../models');
 const axios = require('axios');
 const mysql = require("mysql2/promise");
 const like = require('../models/like');
+const { response } = require('express');
 
 require("dotenv").config({ path: ".env" });
 
@@ -200,5 +201,106 @@ router.post('/:billId/like', async(req, res, next) => {
     }
 });
 
+
+
+//성민
+router.get('/:billId', async(req, res)=>{
+    console.log(Bill);
+    try{
+        const bill = await Bill.findOne({ where: { id: req.params.billId} });
+        return res.status(200).json({ success: true, bill: bill });
+    } catch(err){
+        console.log(err);
+        return res.status(200).json({ success: false, error: err });
+    }
+});
+
+router.get('/name/:memberId', async(req, res)=>{
+    try{
+        const bills = await Bill.findAll({ where: { main_proposer: req.params.memberId} });
+        console.log(bills.title);
+        return res.status(200).json({ success: true, bills: bills });
+    } catch(err){
+        console.log(err);
+        return res.status(200).json({ success: false, error: err });
+    }
+});
+
+//미완성
+// router.get('/hashtag/re/:hashtagName', async(req, res)=>{
+//     console.log('뭥미');
+//     try{
+//         console.log('뭥미');
+//         const str = req.body.Hashtag.match(/#.+/g); //문자열과 정규식 매치떄문에 쓰는거데
+//         if(str){
+//             const result = await Promise.all(
+//                 str.map(tag => {
+//                     return Hashtag.findOrCreate({
+//                         where: { title: tag.slice(1).toLowerCase()},
+//                     })
+//                 }),
+//             );
+//             await Bill.addHashtags(result.map(r => r[0]));
+//         }
+//         //const bills = await Bill.findAll({ where: { hashtag: req.params.hashtagName } });
+//         //return res.status(200).json({ success: true, bills: bills });
+//     } catch(err){
+//         console.log(err);
+//         return res.status(200).json({ success: false, error: err });
+//     }
+// });
+
+router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
+    console.log('\nfsdfs\n');
+    try{
+        const str = req.params.hashtagName;
+        console.log(str);
+        if(str != null) {
+            const hashidr = await Hashtag.findOne({ where: { name: str } });
+            console.log('fgdfs', hashidr);
+            const billhashid = await hashidr.getBills();
+            console.log('\nbillhashid:', billhashid,'\n');
+            return res.status(200).json({ success: true, str: str, bills: billhashid });
+        }
+        
+    } catch(err){
+        console.log(err);
+        return res.status(200).json({ success: false, error: err });
+    }
+});
+
+
+
+// router.get('/hashtag/rew/:hashtagName', async(req, res)=>{
+//     try{
+//         const bills = await Bill.findAll({ where: { hashtag: req.params.hashtagName } });
+//         //console.log(bills[1].id);
+//         return res.status(200).json({ success: true, bills: bills });
+//     } catch(err){
+//         console.log(err);
+//         return res.status(200).json({ success: false, error: err });
+//     }
+// });
+
+
+router.get('/hashtag/random', async(req, res)=>{
+    try{
+        let randomhash = [];
+        for(let i=1; i<4; i++){
+            const r = getRandomInt(1, 3);
+            const htf = await Hashtag.findOne({ where: { id: r } });
+            randomhash.push(htf.name);
+            console.log('fdf', randomhash);
+        }
+        return res.status(200).json({ success: true, randomhash: randomhash });
+    } catch(err){
+        console.log(err);
+        return res.status(200).json({ success: false, error: err });
+    }
+});
+
+function getRandomInt(min, max) { 
+    return Math.floor(Math.random() * (max - min)) + min;
+};
 
 module.exports = router;

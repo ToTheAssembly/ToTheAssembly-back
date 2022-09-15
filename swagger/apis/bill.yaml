@@ -19,7 +19,7 @@ paths:
                     type: integer
                   totalCount:
                     type: integer
-  
+
   /api/bill/{billId}/similar:
     get:
       summary: "유사한 의안, 의원 조회"
@@ -67,8 +67,58 @@ paths:
       description: "이번주에 좋아요를 가장 많이 받은 의안의 ID 0~5개를 array를 반환"
       tags: [Bill]
     responses:
+      "200":
+        description: "의안 ID 0~5개 array"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                bills:
+                  type: array
+                  items:
+                    type: string
+                    description: "array of 5 Bill IDs"
+                  minItems: 0
+                  maxItems: 5
+
+  /api/bill/{billId}/like:
+    post:
+      summary: "좋아요 추가"
+      description: "params로 받아온 billId로 좋아요를 하나 추가한다. 좋아요의 ID는 autoIncrement로 자동으로 생성되며 bill_id는 params의 billId로 만든다."
+      tags: [Bill]
+    responses:
+      "200":
+        description: "좋아요 추가 성공 여부"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+
+  /api/bill/{billId}:
+    get:
+      summary: "billId에 해당하는 의안 조회"
+      description: "params에 bill의 id를 담아 Get방식으로 요청"
+      tags: [Bill]
+      parameters:
+        - name: "billId"
+          in: "path"
+          required: true
+          description: "의안 ID"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "PRC_K2D2Y0Y8E1L9S1Z8I3M3B2O5J1Y8T5"
+              summary: "example bill ID"
+      responses:
         "200":
-          description: "의안 ID 0~5개 array"
+          description: 의안 정보
           content:
             application/json:
               schema:
@@ -78,20 +128,26 @@ paths:
                     type: boolean
                   bills:
                     type: array
-                    items:
-                      type: string
-                      description: "array of 5 Bill IDs"
-                    minItems: 0
-                    maxItems: 5
-                  
-  /api/bill/{billId}/like:
-    post:
-      summary: "좋아요 추가"
-      description: "params로 받아온 billId로 좋아요를 하나 추가한다. 좋아요의 ID는 autoIncrement로 자동으로 생성되며 bill_id는 params의 billId로 만든다."
+
+  /api/bill/name/{memberId}:
+    get:
+      summary: "memberId의원이 발의한 법안 목록 가져오기"
+      description: "params에 member의 이름을 담아 Get방식으로 요청"
       tags: [Bill]
-    responses:
+      parameters:
+        - name: "memberId"
+          in: "path"
+          required: true
+          description: "의원 이름"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "이태규"
+              summary: "example member name"
+      responses:
         "200":
-          description: "좋아요 추가 성공 여부"
+          description: 의안 정보
           content:
             application/json:
               schema:
@@ -99,3 +155,5 @@ paths:
                 properties:
                   success:
                     type: boolean
+                  bills:
+                    type: array

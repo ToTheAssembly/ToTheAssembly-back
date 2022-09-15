@@ -34,5 +34,16 @@ router.get('/:memberId/similarMembers', async (req, res, next) => {
     }
 });
 
+router.get('/:memberId', async(req, res)=>{
+    try{
+        const mem = await Member.findOne({ where: { id: req.params.memberId} });
+        return res.status(200).json({ success: true, mem: mem });
+    } catch(err){
+        console.log(err);
+        return res.status(200).json({ success: false, error: err });
+    }
+});
+
+
 
 module.exports = router;
