@@ -50,13 +50,52 @@ paths:
                     type: array
                     items:
                       type: string
-                      description: array of 3 Bill IDs
+                      description: "array of 3 Bill IDs"
                     minItems: 3
                     maxItems: 3
                   members:
                     type: array
                     items:
                       type: string
-                      description: array of 4 Member IDs
+                      description: "array of 4 Member IDs"
                     minItems: 4
                     maxItems: 4
+
+  /api/bill/thisWeek:
+    get:
+      summary: "이번주 좋아요 수 가장 많은 의안 ID 0~5개 목록"
+      description: "이번주에 좋아요를 가장 많이 받은 의안의 ID 0~5개를 array를 반환"
+      tags: [Bill]
+    responses:
+        "200":
+          description: "의안 ID 0~5개 array"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  bills:
+                    type: array
+                    items:
+                      type: string
+                      description: "array of 5 Bill IDs"
+                    minItems: 0
+                    maxItems: 5
+                  
+  /api/bill/{billId}/like:
+    post:
+      summary: "좋아요 추가"
+      description: "params로 받아온 billId로 좋아요를 하나 추가한다. 좋아요의 ID는 autoIncrement로 자동으로 생성되며 bill_id는 params의 billId로 만든다."
+      tags: [Bill]
+    responses:
+        "200":
+          description: "좋아요 추가 성공 여부"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
