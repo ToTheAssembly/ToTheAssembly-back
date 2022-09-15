@@ -1,8 +1,12 @@
 module.exports = (sequelize, Datatypes) => (
     sequelize.define('hashtag', {
+        id: {
+            type: Datatypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+        },
         name: {
             type: Datatypes.STRING(20),
-            primaryKey: true,
         },
     }, {
         timestamps: false,
