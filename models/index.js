@@ -18,6 +18,7 @@ db.Sequelize = Sequelize;
 db.Bill = require('./bill')(sequelize, Sequelize);
 db.Member = require('./member')(sequelize, Sequelize);
 db.Hashtag = require('./hashtag')(sequelize, Sequelize);
+db.Like = require('./like')(sequelize, Sequelize);
 
 // bill:member = N:M (다대다 관계)
 // db.Bill.belongssToMany(db.Member, { through: 'Proposer' });
@@ -28,5 +29,8 @@ db.Hashtag = require('./hashtag')(sequelize, Sequelize);
 db.Bill.belongsToMany(db.Hashtag, { through: 'BillHashtag', timestamps: false });
 db.Hashtag.belongsToMany(db.Bill, { through: 'BillHashtag', timestamps: false });
 
+// bill:like = 1:N
+db.Bill.hasMany(db.Like, { foreignKey: 'bill_id', sourceKey: 'id', timestamps: true });
+db.Like.belongsTo(db.Bill, { foreignKey: 'bill_id', targetKey: 'id', timestamps: true });
 
 module.exports = db;
