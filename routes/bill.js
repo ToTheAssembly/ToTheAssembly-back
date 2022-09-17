@@ -108,16 +108,13 @@ router.get('/:billId/similar', async (req, res, next) => {
             return res.status(200).json({ success: false, message: '의안을 찾을 수 없습니다.' });
         }
     }
-    catch(e) {
-        console.log(e);
-        return res.status(200).json({ success: false, error: e });
+    catch(err) {
+        console.log(err);
+        return res.status(200).json({ success: false });
     }
 });
 
 
-/* /api/bill/thisWeek - get
-이번주에 좋아요 수가 가장 많은 순으로 5개? 반환
-res { 'bills': bills } */
 /** 이번주에 좋아요 수가 가장 많은 순으로 5개 반환 */
 router.get('/thisWeek', async(req, res, next) => {
     try {
@@ -228,6 +225,7 @@ router.get('/name/:memberId', async(req, res)=>{
 
 
 
+<<<<<<< HEAD
 router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
     try{
         const str = req.params.hashtagName;
@@ -236,11 +234,22 @@ router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
             const hashidr = await Hashtag.findOne({ where: { name: str } });
             const billhashid = await hashidr.getBills();
             return res.status(200).json({ success: true, str: str, bills: billhashid });
+=======
+router.get('/hashtag/search/:hashtagName', async(req, res)=>{
+    try {
+        const str = req.params.hashtagName;
+
+        if (str != null) {
+            const hashidr = await Hashtag.findOne({ where: { name: str }});
+            console.log('hashidr:' , hashidr);
+            const billhashid = await hashidr.getBills();
+            console.log('\nbillhashid:', billhashid,'\n');
+            return res.status(200).json({ success: true, bills: billhashid });
+>>>>>>> d89fcb1d97e803b08bf78a19109e077ba51f76a6
         }
-        
-    } catch(err){
+    } catch(err) {
         console.log(err);
-        return res.status(200).json({ success: false, error: err });
+        return res.status(200).json({ success: false });
     }
 });
 
