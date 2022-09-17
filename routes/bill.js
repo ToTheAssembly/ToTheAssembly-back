@@ -225,7 +225,6 @@ router.get('/name/:memberId', async(req, res)=>{
 
 
 
-<<<<<<< HEAD
 router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
     try{
         const str = req.params.hashtagName;
@@ -234,18 +233,6 @@ router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
             const hashidr = await Hashtag.findOne({ where: { name: str } });
             const billhashid = await hashidr.getBills();
             return res.status(200).json({ success: true, str: str, bills: billhashid });
-=======
-router.get('/hashtag/search/:hashtagName', async(req, res)=>{
-    try {
-        const str = req.params.hashtagName;
-
-        if (str != null) {
-            const hashidr = await Hashtag.findOne({ where: { name: str }});
-            console.log('hashidr:' , hashidr);
-            const billhashid = await hashidr.getBills();
-            console.log('\nbillhashid:', billhashid,'\n');
-            return res.status(200).json({ success: true, bills: billhashid });
->>>>>>> d89fcb1d97e803b08bf78a19109e077ba51f76a6
         }
     } catch(err) {
         console.log(err);
