@@ -226,40 +226,15 @@ router.get('/name/:memberId', async(req, res)=>{
     }
 });
 
-//미완성
-// router.get('/hashtag/re/:hashtagName', async(req, res)=>{
-//     console.log('뭥미');
-//     try{
-//         console.log('뭥미');
-//         const str = req.body.Hashtag.match(/#.+/g); //문자열과 정규식 매치떄문에 쓰는거데
-//         if(str){
-//             const result = await Promise.all(
-//                 str.map(tag => {
-//                     return Hashtag.findOrCreate({
-//                         where: { title: tag.slice(1).toLowerCase()},
-//                     })
-//                 }),
-//             );
-//             await Bill.addHashtags(result.map(r => r[0]));
-//         }
-//         //const bills = await Bill.findAll({ where: { hashtag: req.params.hashtagName } });
-//         //return res.status(200).json({ success: true, bills: bills });
-//     } catch(err){
-//         console.log(err);
-//         return res.status(200).json({ success: false, error: err });
-//     }
-// });
+
 
 router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
-    console.log('\nfsdfs\n');
     try{
         const str = req.params.hashtagName;
         console.log(str);
         if(str != null) {
             const hashidr = await Hashtag.findOne({ where: { name: str } });
-            console.log('fgdfs', hashidr);
             const billhashid = await hashidr.getBills();
-            console.log('\nbillhashid:', billhashid,'\n');
             return res.status(200).json({ success: true, str: str, bills: billhashid });
         }
         
@@ -268,19 +243,6 @@ router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
         return res.status(200).json({ success: false, error: err });
     }
 });
-
-
-
-// router.get('/hashtag/rew/:hashtagName', async(req, res)=>{
-//     try{
-//         const bills = await Bill.findAll({ where: { hashtag: req.params.hashtagName } });
-//         //console.log(bills[1].id);
-//         return res.status(200).json({ success: true, bills: bills });
-//     } catch(err){
-//         console.log(err);
-//         return res.status(200).json({ success: false, error: err });
-//     }
-// });
 
 
 router.get('/hashtag/random', async(req, res)=>{
