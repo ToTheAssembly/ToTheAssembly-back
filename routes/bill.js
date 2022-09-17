@@ -200,7 +200,7 @@ router.post('/:billId/like', async(req, res, next) => {
 
 
 
-//성민
+/** billId로 의안 전체 내용 가져오기 */
 router.get('/:billId', async(req, res)=>{
     console.log(Bill);
     try{
@@ -212,6 +212,7 @@ router.get('/:billId', async(req, res)=>{
     }
 });
 
+/** memberId로 의원이 발의한 법안 가져오기 */
 router.get('/name/:memberId', async(req, res)=>{
     try{
         const bills = await Bill.findAll({ where: { main_proposer: req.params.memberId} });
@@ -224,7 +225,7 @@ router.get('/name/:memberId', async(req, res)=>{
 });
 
 
-
+/** 해시태그 해당 의안 가져오기 */
 router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
     try{
         const str = req.params.hashtagName;
@@ -240,12 +241,12 @@ router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
     }
 });
 
-
+/** 랜덤으로 해시태그 제안하기 */
 router.get('/hashtag/random', async(req, res)=>{
     try{
         let randomhash = [];
-        for(let i=1; i<4; i++){
-            const r = getRandomInt(1, 3);
+        for(let i=1; i<4; i++){  //해시태그 총 개수로 후에 변경필요함
+            const r = getRandomInt(1, 3); //해시태그 총 개수로 후에 변경필요함
             const htf = await Hashtag.findOne({ where: { id: r } });
             randomhash.push(htf.name);
             console.log('fdf', randomhash);
