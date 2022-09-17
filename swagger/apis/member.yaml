@@ -1,0 +1,29 @@
+paths:
+  /api/member/{memberId}:
+    get:
+      summary: "memberId에 해당하는 의원 조회"
+      description: "params에 member의 id를 담아 Get방식으로 요청"
+      tags: [Member]
+      parameters:
+        - name: "memberId"
+          in: "path"
+          required: true
+          description: "의원 ID"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "L2I9861C"
+              summary: "example member ID"
+      responses:
+        "200":
+          description: 의원 정보
+          content:
+            application/json:
+              schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                members:
+                  type: array
