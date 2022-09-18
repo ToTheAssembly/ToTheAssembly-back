@@ -3,7 +3,7 @@ const express = require('express');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const mySQLStore = require('express-mysql-session')(session);
-const { Bill, Like, Hashtag, Billhashtag } = require('../models');
+const { Bill, Like } = require('../models');
 const axios = require('axios');
 const mysql = require("mysql2/promise");
 const like = require('../models/like');
@@ -84,6 +84,7 @@ router.get('/count', async (req, res) =>{
         return res.status(200).json({ success: false });
     }
 });
+
 
 /** 3개의 유사한 의안 id를 반환. 의안 텍스트를 보내면 유사한 의안 목록을 반환하는 api에 보내서 결과를 가져옴.*/
 router.get('/:billId/similar', async (req, res, next) => {
@@ -199,7 +200,6 @@ router.post('/:billId/like', async(req, res, next) => {
 });
 
 
-
 /** billId로 의안 전체 내용 가져오기 */
 router.get('/:billId', async(req, res)=>{
     console.log(Bill);
@@ -211,6 +211,7 @@ router.get('/:billId', async(req, res)=>{
         return res.status(200).json({ success: false, error: err });
     }
 });
+
 
 /** memberId로 의원이 발의한 법안 가져오기 */
 router.get('/name/:memberId', async(req, res)=>{
@@ -224,42 +225,5 @@ router.get('/name/:memberId', async(req, res)=>{
     }
 });
 
-
-/** 해시태그 해당 의안 가져오기 */
-router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
-    try{
-        const str = req.params.hashtagName;
-        console.log(str);
-        if(str != null) {
-            const hashidr = await Hashtag.findOne({ where: { name: str } });
-            const billhashid = await hashidr.getBills();
-            return res.status(200).json({ success: true, str: str, bills: billhashid });
-        }
-    } catch(err) {
-        console.log(err);
-        return res.status(200).json({ success: false });
-    }
-});
-
-/** 랜덤으로 해시태그 제안하기 */
-router.get('/hashtag/random', async(req, res)=>{
-    try{
-        let randomhash = [];
-        for(let i=1; i<4; i++){  //해시태그 총 개수로 후에 변경필요함
-            const r = getRandomInt(1, 3); //해시태그 총 개수로 후에 변경필요함
-            const htf = await Hashtag.findOne({ where: { id: r } });
-            randomhash.push(htf.name);
-            console.log('fdf', randomhash);
-        }
-        return res.status(200).json({ success: true, randomhash: randomhash });
-    } catch(err){
-        console.log(err);
-        return res.status(200).json({ success: false, error: err });
-    }
-});
-
-function getRandomInt(min, max) { 
-    return Math.floor(Math.random() * (max - min)) + min;
-};
 
 module.exports = router;
