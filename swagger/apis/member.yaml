@@ -25,5 +25,40 @@ paths:
               properties:
                 success:
                   type: boolean
-                members:
+                member:
                   type: array
+
+  /api/member/{memberId}/similar:
+    get:
+      summary: "유사한 의원 조회(의원 상세페이지)"
+      description: "4개의 의원 ID를 목록으로 반환. params에 member의 id를 담아 get 요청, 다른 api 서버에서 반환된 유사한 의원 결과를 조회할 수 있도록 함."
+      tags: [Member]
+      parameters:
+        - name: "memberId"
+          in: "path"
+          required: true
+          description: "의원 ID"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "L2I9861C"
+              summary: "example member ID"
+      responses:
+        "200":
+          description: "유사한 의원 ID 목록"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  members:
+                    type: array
+                    items:
+                      type: string
+                      description: "array of 4 Member IDs"
+                    minItems: 4
+                    maxItems: 4
+
