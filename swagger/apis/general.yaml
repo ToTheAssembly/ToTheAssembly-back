@@ -30,7 +30,7 @@ paths:
 
   /api/hashtag/random:
     get:
-      summary: "해시태그 랜덤으로 3개 제시"
+      summary: "해시태그 랜덤으로 6개 제시"
       description: "Get방식으로 요청"
       tags: [Hashtag]
       responses:
@@ -45,6 +45,11 @@ paths:
                     type: boolean
                   randomhash:
                     type: array
+                    items:
+                      type: string
+                      description: "array of 6 Random hashtags"
+                    minItems: 6
+                    maxItems: 6
 
   /api/search?q={searchWord}:
     get:
@@ -55,30 +60,30 @@ paths:
         "200":
         description: "유효한 검색어를 입력하면 200 코드와 함께 제대로 된 결과를 반환. 아니면 200코드와 false, 빈 배열을 반환"
         content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  bills:
-                    type: array
-                    items:
-                      type: string
-                      description: "array of 20 Bill IDs"
-                    minItems: 20
-                    maxItems: 20
-                  members:
-                    type: array
-                    items:
-                      type: string
-                      description: "array of 20 Member IDs"
-                    minItems: 20
-                    maxItems: 20
-                  hashtags:
-                    type: array
-                    items:
-                      type: string
-                      description: "array of 0~8 Hashtag names"
-                    minItems: 0
-                    maxItems: 8
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                bills:
+                  type: array
+                  items:
+                    type: string
+                    description: "array of 20 Bill IDs"
+                  minItems: 20
+                  maxItems: 20
+                members:
+                  type: array
+                  items:
+                    type: string
+                    description: "array of 20 Member IDs"
+                  minItems: 20
+                  maxItems: 20
+                hashtags:
+                  type: array
+                  items:
+                    type: string
+                    description: "array of 0~8 Hashtag names"
+                  minItems: 0
+                  maxItems: 8

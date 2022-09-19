@@ -27,12 +27,14 @@ router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
 router.get('/hashtag/random', async(req, res)=>{
     try{
         let randomhash = [];
-        for(let i=1; i<4; i++){  //해시태그 총 개수로 후에 변경필요함
-            const r = getRandomInt(1, 3); //해시태그 총 개수로 후에 변경필요함
-            const htf = await Hashtag.findOne({ where: { id: r } });
-            randomhash.push(htf.name);
+            const r = getRandomInt(); //해시태그 총 개수로 후에 변경필요함
+            for(let a=0;a<6; a++){
+                console.log(r[a]);
+                const htf = await Hashtag.findOne({ where: { id: r[a] } });
+                console.log(htf);
+                randomhash.push(htf.name);
+            }
             console.log('fdf', randomhash);
-        }
         return res.status(200).json({ success: true, randomhash: randomhash });
     } catch(err){
         console.log(err);
@@ -40,8 +42,21 @@ router.get('/hashtag/random', async(req, res)=>{
     }
 });
 
-function getRandomInt(min, max) { 
-    return Math.floor(Math.random() * (max - min)) + min;
+function getRandomInt() { 
+    let a =[];
+    let i=1;
+    while(i<7){
+        let n =Math.floor(Math.random() * (7)) + 1;
+        if(! sameNum(n)){
+            a.push(n);
+            i++;
+        }
+    }
+    function sameNum(n){
+        return a.find((e)=>(e===n));
+    }
+    console.log(a);
+    return a;
 };
 
 
