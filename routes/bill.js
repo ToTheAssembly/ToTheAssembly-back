@@ -213,17 +213,96 @@ router.get('/:billId', async(req, res)=>{
 });
 
 
-/** memberId로 의원이 발의한 법안 가져오기 */
-router.get('/name/:memberId', async(req, res)=>{
-    try{
-        const bills = await Bill.findAll({ where: { main_proposer: req.params.memberId} });
-        console.log(bills.title);
-        return res.status(200).json({ success: true, bills: bills });
-    } catch(err){
-        console.log(err);
-        return res.status(200).json({ success: false, error: err });
+/** memberId로 의원이 발의한 법안 가져오기 -4개 페이지네이션 */
+router.get('/name/:memberId/:page', async(req, res)=>{
+    var pageNum = req.params.page;
+    let offset = 0;
+
+    if(pageNum > 1){
+        offset = 4*(pageNum-1);
     }
+
+    Bill.findAll({
+        offset: offset,
+        limit: 4,
+        where: {
+            main_proposer: req.params.memberId
+        }
+        
+    })
+    .then(async result => {
+        return res.status(200).json({
+            status: true,
+            Bill: result
+        });
+        })
 });
 
+
+/** 미완성 */
+/** 의안 전체 목록 가져오기  -한페이지 10개-sort={1:최신순, 2:인기순} */
+
+router.get('/page/:page',function(req,res,next)  //한 페이지에 의안 10개씩:page에 몇번쨰 페이지인지 넣기
+{
+    var pageNum = req.params.page;
+    let offset = 0;
+    
+    if(pageNum > 1){
+        offset = 10*(pageNum-1);
+    }
+
+    Bill.findAll({
+        offset: offset,
+        limit: 10
+    })
+    .then(async result => {
+        return res.status(200).json({
+            status: true,
+            Bill: result
+        });
+        })
+});
+
+// /** 미완성 */
+// /** 의안 전체 목록 가져오기  -한페이지 10개-sort={1:최신순, 2:인기순} */
+
+router.get('/page/:page/:sort',function(req,res,next)  //한 페이지에 의안 10개씩:page에 몇번쨰 페이지인지 넣기
+{
+    var pageNum = req.params.page;
+    let offset = 0;
+    var sortre = req.params.sort;
+    
+    if(pageNum > 1){
+        offset = 10*(pageNum-1);
+    }
+
+    if(sortre==1){
+        Bill.findAll({
+            offset: offset,
+            limit: 10,
+            order: [[ 'created_at', 'desc' ]]
+        })
+        .then(async result => {
+            return res.status(200).json({
+                status: true,
+                Bill: result
+            });
+            })
+    }
+    else if(sortre==2){
+        Bill.findAll({
+            offset: offset,
+            limit: 10
+        })
+        .then(async result => {
+            return res.status(200).json({
+                status: true,
+                Bill: result
+            });
+            })
+    }
+
+    
+});
 
 module.exports = router;

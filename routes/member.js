@@ -45,7 +45,28 @@ router.get('/:memberId', async(req, res)=>{
         return res.status(200).json({ success: false });
     }
 });
+/**  국회의원 목록 12개씩 가져오기(페이지네이션)+정당별검색 */
+router.get('/name/:page/:party',function(req,res,next){
+    var pageNum = req.params.page;
+    let offset = 0;
 
+    if(pageNum > 1){
+        offset = 12*(pageNum-1);
+    }
 
+    Member.findAll({
+        offset: offset,
+        limit: 12,
+        where: {
+            party: req.params.party
+        }
+    })
+    .then(async result => {
+        return res.status(200).json({
+            status: true,
+            Member: result
+        });
+        })
+})
 
 module.exports = router;

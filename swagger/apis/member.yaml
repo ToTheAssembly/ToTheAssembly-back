@@ -62,3 +62,46 @@ paths:
                     minItems: 4
                     maxItems: 4
 
+  /api/member/name/:page/:party:
+    get:
+      summary: "국회의원 목록 12개씩 가져오기-정당별검색-페이지네이션"
+      description: "sequelize이용"
+      tags: [Member]
+      parameters:
+        - name: "page"
+          in: "path"
+          required: true
+          description: "페이지 수"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "1"
+              summary: "example page Number"
+        - name: "party"
+          in: "path"
+          required: true
+          description: "정당 이름"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "국민의힘"
+              summary: "example party"
+      responses:
+        "200":
+          description: 의원 목록
+          content:
+            application/json:
+              schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                member:
+                  type: array
+                  items:
+                      type: string
+                      description: "array of 12 List of Member"
+                    minItems: 1
+                    maxItems: 12
