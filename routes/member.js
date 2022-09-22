@@ -40,7 +40,7 @@ router.get('/:memberId/similar', async (req, res, next) => {
 /**  국회의원 목록 12개씩 가져오기(페이지네이션) + 정당별검색 */
 router.get('/list', async (req, res, next) => {
     const queryData = url.parse(req.url, true).query;
-    const pageNum = queryData.page;
+    const pageNum = Number(queryData.page || 1);
     const pageSize = 12;
     let partyName = ["더불어민주당", "국민의힘", "정의당", "기본소득당", "시대전환당", "무소속"];
 

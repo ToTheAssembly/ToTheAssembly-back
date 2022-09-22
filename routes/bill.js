@@ -195,14 +195,14 @@ router.post('/:billId/like', async(req, res, next) => {
 /** 의안 전체 목록 가져오기 - 한 페이지 10개, sort = { 1: 최신순, 2: 인기순 } */
 router.get('/list', async(req, res) => {
     const queryData = url.parse(req.url, true).query;
-    const pageNum = queryData.page;
-    const sort = queryData.sort;
+    const pageNum = Number(queryData.page || 1);
+    const sort = Number(queryData.sort || 1);
     const pageSize = 10;
     const offset = pageSize * (pageNum - 1);
     
     if (sort == 1) {    // 최신순
         await Bill.findAll({
-            offset: pageSize * (pageNum - 1),
+            offset: offset,
             limit: pageSize,
             order: [[ "created_at", "DESC" ]]
         })
@@ -271,7 +271,6 @@ router.get('/list', async(req, res) => {
 
 /** billId로 의안 전체 내용 가져오기 */
 router.get('/:billId', async(req, res) => {
-    console.log(Bill);
     try{
         const bill = await Bill.findOne({ where: { id: req.params.billId } });
         return res.status(200).json({ success: true, bill: bill });
@@ -284,7 +283,7 @@ router.get('/:billId', async(req, res) => {
 
 /** memberId로 의원이 발의한 법안 가져오기 - 한 페이지 4개, 최신순 */
 router.get('/name/:memberId', async(req, res) => {
-    const pageNum = url.parse(req.url, true).query.page;
+    const pageNum = Number(url.parse(req.url, true).query.page || 1);
     const pageSize = 4;
     
     const member = await Member.findOne({   
