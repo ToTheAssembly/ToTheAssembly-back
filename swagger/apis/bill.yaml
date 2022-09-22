@@ -171,11 +171,13 @@ paths:
       parameters:
         - in: query
           name: page
+          required: true
           schema:
             type: integer
           description: 현재 페이지 번호. 한 페이지에는 10개의 의안을 담음
         - in: query
           name: sort
+          required: true
           schema:
             type: integer
           description: 1이면 최신순, 2이면 인기순(좋아요순)으로 정렬
