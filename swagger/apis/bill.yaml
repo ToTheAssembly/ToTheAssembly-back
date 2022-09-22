@@ -126,28 +126,28 @@ paths:
                 properties:
                   success:
                     type: boolean
-                  bills:
-                    type: array
+                  bill:
+                    type: object
 
-  /api/bill/name/{memberId}:
+  /api/bill/name/{memberId}?page={pageNum}:
     get:
-      summary: "memberId의원이 발의한 법안 목록 가져오기"
-      description: "params에 member의 이름을 담아 Get방식으로 요청"
+      summary: "의원이 발의한 법안 목록 가져오기"
+      description: "params에 member의 Id을 담고 쿼리에 page 번호를 담아 Get방식으로 요청. 한 페이지 4개 의안 목록 담음."
       tags: [Bill]
       parameters:
         - name: "memberId"
           in: "path"
           required: true
-          description: "의원 이름"
+          description: "의원 ID"
           schema:
             type: string
           examples:
             Sample:
-              value: "이태규"
-              summary: "example member name"
+              value: "L2I9861C"
+              summary: "example member Id"
       responses:
         "200":
-          description: "의안 정보"
+          description: "의원이 발의한 4개 의안 목록"
           content:
             application/json:
               schema:
@@ -157,3 +157,42 @@ paths:
                     type: boolean
                   bills:
                     type: array
+                    items:
+                      type: string
+                      description: "array of 4 Bills"
+                    minItems: 4
+                    maxItems: 4
+
+  /api/bill/list?page={pageNum}&sort={1 or 2}:
+    get:
+      summary: "의안 전체 목록 가져오기"
+      description: "의안 전체 목록을 페이징으로 전달. 한 페이지에는 10개의 의안 목록을 담음. page 쿼리는 현재 페이지 번호, sort는 1이면 최신순, 2이면 인기순(좋아요순)으로 정렬해서 반환함."
+      tags: [Bill]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: 현재 페이지 번호. 한 페이지에는 10개의 의안을 담음
+        - in: query
+          name: sort
+          schema:
+            type: integer
+          description: 1이면 최신순, 2이면 인기순(좋아요순)으로 정렬
+      responses:
+        "200":
+          description: "0~10개의 의안 목록"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  bills:
+                    type: array
+                    items:
+                      type: object
+                      description: "array of 0~10 Bills"
+                    minItems: 0
+                    maxItems: 10

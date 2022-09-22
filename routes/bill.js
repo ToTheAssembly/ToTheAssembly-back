@@ -1,27 +1,19 @@
 const express = require('express');
-// const cookieParser = require('cookie-parser');
+const url = require('url');
+const sequelize = require('sequelize');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const mySQLStore = require('express-mysql-session')(session);
-const { Bill, Like } = require('../models');
+const { Bill, Like, Member } = require('../models');
 const axios = require('axios');
 const mysql = require("mysql2/promise");
 const like = require('../models/like');
 const { response } = require('express');
+const { appendFile } = require('fs');
 
 require("dotenv").config({ path: ".env" });
 
 const router = express.Router();
-
-// router.use(cookieParser());
-// https://blog.naver.com/PostView.naver?blogId=pjok1122&logNo=221555161680 => express-mysql-session 참고한 블로그
-// const sessionStore = new mySQLStore({
-//     host: 'localhost',
-//     port: 3306,
-//     user: 'root',
-//     password: process.env.SEQUELIZE_PASSWORD,
-//     database: 'khr'
-// });
 
 router.use(session({
     secret: process.env.SESSION_SECRET,
@@ -134,7 +126,7 @@ router.get('/thisWeek', async(req, res, next) => {
         return res.status(200).json({ success: true, bills: bills });
     } catch(err) {
         console.log(err);
-        return res.status(201).json({ success: false });
+        return res.status(200).json({ success: false });
     }
 });
 
@@ -195,114 +187,125 @@ router.post('/:billId/like', async(req, res, next) => {
         return res.status(200).json({ success: true });
     } catch(err) {
         console.log(err);
-        return res.status(201).json({ success: false });
+        return res.status(200).json({ success: false });
+    }
+});
+
+
+/** 의안 전체 목록 가져오기 - 한 페이지 10개, sort = { 1: 최신순, 2: 인기순 } */
+router.get('/list', async(req, res) => {
+    const queryData = url.parse(req.url, true).query;
+    const pageNum = queryData.page;
+    const sort = queryData.sort;
+    const pageSize = 10;
+    const offset = pageSize * (pageNum - 1);
+    
+    if (sort == 1) {    // 최신순
+        await Bill.findAll({
+            offset: pageSize * (pageNum - 1),
+            limit: pageSize,
+            order: [[ "created_at", "DESC" ]]
+        })
+        .then(result => {
+            return res.status(200).json({
+                success: true,
+                bills: result
+            });
+        })
+        .catch( err => {
+            console.log(err);
+            return res.status(200).json({ success: false });
+        });
+    }
+    else if(sort == 2) {    // 인기순 
+        await Bill.findAll({
+            // offset: pageSize * (pageNum - 1),
+            // limit: pageSize,
+
+            // include : [{
+            //     model: Like,
+            //     attributes : [[sequelize.fn('count', sequelize.col('id')), 'likeCount']],
+            //     // as: 'likes',
+            //     group : ['bill_id'],
+            //     order : [[sequelize.literal('likeCount'), 'DESC']],
+            // }],
+            // order: [['likes', "DESC"]],
+
+
+            include: [{
+                    model: Like, 
+                    attributes: ['id', 'bill_id'],
+                }],
+            group: ['likes.bill_id'],
+            order: [[sequelize.literal("COUNT(likes.id)"), "DESC"]],
+
+            // order: [[sequelize.literal('COUNT(`likes`.`bill_id`)'), 'DESC']],
+            // include: [
+            //     {
+            //         model: Like,
+            //         // as: 'likes',
+            //         attributes: [
+            //             // [sequelize.literal('SELECT cnt FROM (SELECT bill_id, COUNT(id) AS cnt FROM likes GROUP BY bill_id)'), 'likeCount']
+            //             [sequelize.fn('count', sequelize.col(sequelize.literal('SELECT id FROM likes GROUP BY bill_id'))), 'likeCount']
+            //         ],
+            //     },
+            // ],
+            // order: [['likes.likeCount', 'DESC']],
+
+            // group: ["likes.bill_id"],            
+            // order: [[Like, sequelize.literal("(COUNT(`likes`.`id`)"), "DESC"]],
+        })
+        .then( result => {
+            return res.status(200).json({
+                success: true,
+                bills: result.slice(offset, offset+pageSize)    // offset과 limit을 쓰면 sequelize 에러 발생
+            });
+        })
+        .catch( err => {
+            console.log(err);
+            return res.status(200).json({ success: false });
+        });
     }
 });
 
 
 /** billId로 의안 전체 내용 가져오기 */
-router.get('/:billId', async(req, res)=>{
+router.get('/:billId', async(req, res) => {
     console.log(Bill);
     try{
-        const bill = await Bill.findOne({ where: { id: req.params.billId} });
+        const bill = await Bill.findOne({ where: { id: req.params.billId } });
         return res.status(200).json({ success: true, bill: bill });
-    } catch(err){
+    } catch(err) {
         console.log(err);
-        return res.status(200).json({ success: false, error: err });
+        return res.status(200).json({ success: false });
     }
 });
 
 
-/** memberId로 의원이 발의한 법안 가져오기 -4개 페이지네이션 */
-router.get('/name/:memberId/:page', async(req, res)=>{
-    var pageNum = req.params.page;
-    let offset = 0;
+/** memberId로 의원이 발의한 법안 가져오기 - 한 페이지 4개, 최신순 */
+router.get('/name/:memberId', async(req, res) => {
+    const pageNum = url.parse(req.url, true).query.page;
+    const pageSize = 4;
+    
+    const member = await Member.findOne({   
+        where: { id: req.params.memberId }, 
+    }); 
 
-    if(pageNum > 1){
-        offset = 4*(pageNum-1);
-    }
-
-    Bill.findAll({
-        offset: offset,
-        limit: 4,
+    await Bill.findAll({
+        offset: pageSize * (pageNum - 1),
+        limit: pageSize,
         where: {
-            main_proposer: req.params.memberId
-        }
-        
+            main_proposer: member.name
+        },
+        order: [[ 'created_at', 'desc' ]],
     })
-    .then(async result => {
+    .then(result => {
         return res.status(200).json({
-            status: true,
-            Bill: result
+            success: true,
+            bills: result
         });
-        })
-});
-
-
-/** 미완성 */
-/** 의안 전체 목록 가져오기  -한페이지 10개-sort={1:최신순, 2:인기순} */
-
-router.get('/page/:page',function(req,res,next)  //한 페이지에 의안 10개씩:page에 몇번쨰 페이지인지 넣기
-{
-    var pageNum = req.params.page;
-    let offset = 0;
-    
-    if(pageNum > 1){
-        offset = 10*(pageNum-1);
-    }
-
-    Bill.findAll({
-        offset: offset,
-        limit: 10
     })
-    .then(async result => {
-        return res.status(200).json({
-            status: true,
-            Bill: result
-        });
-        })
 });
 
-// /** 미완성 */
-// /** 의안 전체 목록 가져오기  -한페이지 10개-sort={1:최신순, 2:인기순} */
-
-router.get('/page/:page/:sort',function(req,res,next)  //한 페이지에 의안 10개씩:page에 몇번쨰 페이지인지 넣기
-{
-    var pageNum = req.params.page;
-    let offset = 0;
-    var sortre = req.params.sort;
-    
-    if(pageNum > 1){
-        offset = 10*(pageNum-1);
-    }
-
-    if(sortre==1){
-        Bill.findAll({
-            offset: offset,
-            limit: 10,
-            order: [[ 'created_at', 'desc' ]]
-        })
-        .then(async result => {
-            return res.status(200).json({
-                status: true,
-                Bill: result
-            });
-            })
-    }
-    else if(sortre==2){
-        Bill.findAll({
-            offset: offset,
-            limit: 10
-        })
-        .then(async result => {
-            return res.status(200).json({
-                status: true,
-                Bill: result
-            });
-            })
-    }
-
-    
-});
 
 module.exports = router;
