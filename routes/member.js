@@ -1,5 +1,6 @@
 const express = require('express');
 const axios = require('axios');
+const url = require('url');
 const { Member } = require('../models');
 
 const router = express.Router();
@@ -35,6 +36,57 @@ router.get('/:memberId/similar', async (req, res, next) => {
     }
 });
 
+
+/**  국회의원 목록 12개씩 가져오기(페이지네이션) + 정당별검색 */
+router.get('/list', async (req, res, next) => {
+    const queryData = url.parse(req.url, true).query;
+    const pageNum = queryData.page;
+    const pageSize = 12;
+    let partyName = ["더불어민주당", "국민의힘", "정의당", "기본소득당", "시대전환당", "무소속"];
+
+    if (queryData.party) {
+        switch (Number(queryData.party)) {
+            case 1:
+                partyName = "더불어민주당";
+                break;
+            case 2:
+                partyName = "국민의힘";
+                break;
+            case 3:
+                partyName = "정의당";
+                break;
+            case 4:
+                partyName = "기본소득당";
+                break;
+            case 5:
+                partyName = "시대전환당";
+                break;
+            case 6:
+                partyName = "무소속";
+                break;
+            }
+        }
+
+    await Member.findAll({
+        offset: pageSize * (pageNum - 1),
+        limit: pageSize,
+        where: {
+            party: partyName
+        }
+    })
+    .then( result => {
+        return res.status(200).json({
+            success: true,
+            members: result
+        });
+    })
+    .catch( err => {
+        console.log(err);
+        return res.status(200).json({ success: false });
+    });
+});
+
+
 /** memberId로 국회의원 정보 가져오기 */
 router.get('/:memberId', async(req, res)=>{
     try{
@@ -45,28 +97,6 @@ router.get('/:memberId', async(req, res)=>{
         return res.status(200).json({ success: false });
     }
 });
-/**  국회의원 목록 12개씩 가져오기(페이지네이션)+정당별검색 */
-router.get('/name/:page/:party',function(req,res,next){
-    var pageNum = req.params.page;
-    let offset = 0;
 
-    if(pageNum > 1){
-        offset = 12*(pageNum-1);
-    }
-
-    Member.findAll({
-        offset: offset,
-        limit: 12,
-        where: {
-            party: req.params.party
-        }
-    })
-    .then(async result => {
-        return res.status(200).json({
-            status: true,
-            Member: result
-        });
-        })
-})
 
 module.exports = router;

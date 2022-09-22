@@ -62,46 +62,38 @@ paths:
                     minItems: 4
                     maxItems: 4
 
-  /api/member/name/:page/:party:
+  /api/member/list?page={pageNum}&party={1 to 6}:
     get:
-      summary: "국회의원 목록 12개씩 가져오기-정당별검색-페이지네이션"
-      description: "sequelize이용"
+      summary: "국회의원 목록 12개씩 가져오기 + 정당별검색 + 페이지네이션"
+      description: "국회의원 목록을 가져오는 라우터 입니다. 한 페이지에 12개를 담고, page 쿼리는 현재 페이지 번호를 의미하고 party는 정당별로 목록을 반환하도록 합니다. 정당은 1:더불어민주당, 2:국민의힘, 3: 정의당, 4: 기본소득당, 5:시대전환당, 6:무소속 를 의미합니다. page는 꼭 넣어야하지만 party는 넣지 않아도 모든 정당을 반환합니다."
       tags: [Member]
       parameters:
-        - name: "page"
-          in: "path"
+        - in: query
+          name: page
           required: true
-          description: "페이지 수"
           schema:
-            type: string
-          examples:
-            Sample:
-              value: "1"
-              summary: "example page Number"
-        - name: "party"
-          in: "path"
-          required: true
-          description: "정당 이름"
+            type: integer
+          description: 현재 페이지 번호. 한 페이지에는 12개의 의원을 담음
+        - in: query
+          name: party
+          required: false
           schema:
-            type: string
-          examples:
-            Sample:
-              value: "국민의힘"
-              summary: "example party"
+            type: integer
+          description: "1~6의 정수. 1:더불어민주당, 2:국민의힘, 3: 정의당, 4: 기본소득당, 5:시대전환당, 6:무소속"
       responses:
         "200":
-          description: 의원 목록
+          description: 12개의 의원 목록
           content:
             application/json:
               schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-                member:
-                  type: array
-                  items:
-                      type: string
-                      description: "array of 12 List of Member"
-                    minItems: 1
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  members:
+                    type: array
+                    items:
+                      type: object
+                      description: "array of 0~12 List of Members"
+                    minItems: 0
                     maxItems: 12
