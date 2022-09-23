@@ -2,7 +2,7 @@ paths:
   /api/member/{memberId}:
     get:
       summary: "memberId에 해당하는 의원 조회"
-      description: "params에 member의 id를 담아 Get방식으로 요청"
+      description: "params에 member의 id를 담아 Get방식으로 요청. 내부적으로 유사한 의원도 찾아서 반환."
       tags: [Member]
       parameters:
         - name: "memberId"
@@ -26,11 +26,18 @@ paths:
                 success:
                   type: boolean
                 member:
+                  type: Object
+                similarMembers:
                   type: array
+                  items:
+                    type: string
+                    description: "array of 4 Member IDs"
+                  minItems: 4
+                  maxItems: 4
 
   /api/member/{memberId}/similar:
     get:
-      summary: "유사한 의원 조회(의원 상세페이지)"
+      summary: "(쓰이지 않을 예정!!)유사한 의원 조회(의원 상세페이지)"
       description: "4개의 의원 ID를 목록으로 반환. params에 member의 id를 담아 get 요청, 다른 api 서버에서 반환된 유사한 의원 결과를 조회할 수 있도록 함."
       tags: [Member]
       parameters:
