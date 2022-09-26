@@ -54,7 +54,7 @@ paths:
   /api/search?q={searchWord}:
     get:
       summary: "검색 라우터"
-      description: "근데 이것도 페이지네이션 필요하나요?! 검색창에 검색어를 입력하면 실행되는 라우터로 다른 api서버에서 받아온 그 검색어와 유사한 의안 ID 20개, 의원 ID 20개, 해시태그 name 8개를 return"
+      description: "검색창에 검색어를 입력하면 실행되는 라우터로 다른 api서버에서 받아온 그 검색어와 유사한 의안 목록 20개, 의원 목록 20개, 해시태그 name 8개를 return"
       tags: [Search]
       responses:
         "200":
@@ -70,14 +70,14 @@ paths:
                   type: array
                   items:
                     type: string
-                    description: "array of 20 Bill IDs"
+                    description: "array of 20 Bills"
                   minItems: 20
                   maxItems: 20
                 members:
                   type: array
                   items:
                     type: string
-                    description: "array of 20 Member IDs"
+                    description: "array of 20 Members"
                   minItems: 20
                   maxItems: 20
                 hashtags:
