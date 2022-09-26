@@ -94,7 +94,7 @@ router.get('/:memberId', async(req, res)=>{
         const member = await Member.findOne({ where: { id: req.params.memberId} });
 
         // 아직 flask 서버가 공사중
-        return res.status(200).json({ success: true, members: ['L2I9861C', 'EMC8812P'] });
+        return res.status(200).json({ success: true, member: member, similarMembers: ['L2I9861C', 'EMC8812P'] });
 
         // if(member) {
         //     await axios

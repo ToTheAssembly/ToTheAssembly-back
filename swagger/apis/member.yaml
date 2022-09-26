@@ -21,19 +21,19 @@ paths:
           content:
             application/json:
               schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-                member:
-                  type: Object
-                similarMembers:
-                  type: array
-                  items:
-                    type: string
-                    description: "array of 4 Member IDs"
-                  minItems: 4
-                  maxItems: 4
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  member:
+                    type: Object
+                  similarMembers:
+                    type: array
+                    items:
+                      type: string
+                      description: "array of 4 Member IDs"
+                    minItems: 4
+                    maxItems: 4
 
   /api/member/{memberId}/similar:
     get:
