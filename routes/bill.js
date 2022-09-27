@@ -209,7 +209,8 @@ router.get('/list', async(req, res) => {
         .then(result => {
             return res.status(200).json({
                 success: true,
-                bills: result
+                bills: result,
+                totalcount: result.length
             });
         })
         .catch( err => {

@@ -78,7 +78,8 @@ router.get('/list', async (req, res, next) => {
     .then( result => {
         return res.status(200).json({
             success: true,
-            members: result
+            members: result,
+            totalcount: result.length
         });
     })
     .catch( err => {

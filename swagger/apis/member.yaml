@@ -104,3 +104,6 @@ paths:
                       description: "array of 0~12 List of Members"
                     minItems: 0
                     maxItems: 12
+                  totalcount:
+                    type: integer
+                    description: "의원 목록 개수"

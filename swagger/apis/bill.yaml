@@ -198,3 +198,6 @@ paths:
                       description: "array of 0~10 Bills"
                     minItems: 0
                     maxItems: 10
+                  totalcount:
+                    type: integer
+                    description: "의안 목록 개수"
