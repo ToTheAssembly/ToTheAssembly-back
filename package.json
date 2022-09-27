@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index"
+    "start": "node index",
+    "dev": "nodemon index"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "swagger-jsdoc": "^6.2.5",
-    "swagger-ui-express": "^4.5.0"
+    "swagger-ui-express": "^4.5.0",
+    "nodemon": "^2.0.20"
   }
 }

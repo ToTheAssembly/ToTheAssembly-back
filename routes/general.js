@@ -1,0 +1,113 @@
+const express = require('express');
+const url = require('url');
+const axios = require('axios');
+
+const { Bill, Member, Hashtag } = require('../models');
+
+const router = express.Router();
+
+
+/** 해시태그 해당 의안 가져오기 */
+router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
+    try{
+        const str = req.params.hashtagName;
+        console.log(str);
+        if(str != null) {
+            const hashidr = await Hashtag.findOne({ where: { name: str } });
+            const billhashid = await hashidr.getBills();
+            return res.status(200).json({ success: true, str: str, bills: billhashid });
+        }
+    } catch(err) {
+        console.log(err);
+        return res.status(200).json({ success: false });
+    }
+});
+
+/** 랜덤으로 해시태그 제안하기 */
+router.get('/hashtag/random', async(req, res)=>{
+    try{
+        let randomhash = [];
+            const r = getRandomInt(); //해시태그 총 개수로 후에 변경필요함
+            for(let a=0;a<6; a++){
+                console.log(r[a]);
+                const htf = await Hashtag.findOne({ where: { id: r[a] } });
+                console.log(htf);
+                randomhash.push(htf.name);
+            }
+            console.log('fdf', randomhash);
+        return res.status(200).json({ success: true, randomhash: randomhash });
+    } catch(err){
+        console.log(err);
+        return res.status(200).json({ success: false, error: err });
+    }
+});
+
+function getRandomInt() { 
+    let a =[];
+    let i=1;
+    while(i<7){
+        let n =Math.floor(Math.random() * (7)) + 1;
+        if(! sameNum(n)){
+            a.push(n);
+            i++;
+        }
+    }
+    function sameNum(n){
+        return a.find((e)=>(e===n));
+    }
+    console.log(a);
+    return a;
+};
+
+
+/** 검색 라우터 */
+// req q="검색어"
+// post로 보내는거 "검색어"
+// 받아오는거 { bills: [], members: [], hashtags: [] }
+// res 도 동일
+// 한 페이지에 의안 5개, 의원 4개 => 페이지네이션 추가해야함!!(가능한..?) => 20개 목록 전달로 수정
+router.get('/search', async(req, res) => {
+    const queryData = url.parse(req.url, true).query;
+    const searchWord = queryData.q;
+    // const pageNum = Number(queryData.page || 1);
+    // const MEMBERSIZE = 4;
+    // const BILLSIZE = 5;
+
+    // flask는 아직 공사중~
+    return res.status(200).json({ success: true, 
+        bills: ['PRC_S2P2C0M9U0Y1I1E7U1R9H2B9P5L6R8', 'PRC_K2D2Y0Y8E1L9S1Z8I3M3B2O5J1Y8T5'], 
+        members: ['L2I9861C', 'EMC8812P'], 
+        hashtags: ['징계', '공무원', '채용'] 
+        });
+    // // 테스트는 아직 안 된 코드
+    if(searchWord) {
+        await axios
+            .post(`${process.env.SEARCH_API_URL}`, {
+                q: searchWord,
+            })
+            .then(async (response) => {
+                let bills = [];
+                let members = [];
+                    
+                for(b in response.bills) {
+                    bills.push(await Bill.findOne({ where: id = b }));
+                }
+                for(m in response.members) {
+                    members.push(await Member.findOne({ where: id = m }));
+                }
+                
+                return res.status(200).json({ 
+                    success: true, 
+                    bills: bills, 
+                    members: members, 
+                    hashtags: response.hashtags,
+                    });
+            });
+    }
+    else {
+        return res.status(200).json({ success: false, message: '유효하지 않은 검색어입니다.', bills: [], members: [], hashtags: [] });
+    }
+    
+});
+
+module.exports = router;

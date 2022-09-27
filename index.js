@@ -5,6 +5,7 @@ const mysql2 = require('mysql2');
 
 const billRouter = require('./routes/bill');
 const memberRouter = require('./routes/member');
+const generalRouter = require('./routes/general');
 const sequelize = require('./models').sequelize;
 const { swaggerUi, specs } = require('./swagger/swagger');
 
@@ -26,6 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/api/bill', billRouter);
 app.use('/api/member', memberRouter);
+app.use('/api', generalRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true }));
 

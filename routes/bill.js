@@ -1,27 +1,19 @@
 const express = require('express');
-// const cookieParser = require('cookie-parser');
+const url = require('url');
+const sequelize = require('sequelize');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const mySQLStore = require('express-mysql-session')(session);
-const { Bill, Like, Hashtag, Billhashtag } = require('../models');
+const { Bill, Like, Member } = require('../models');
 const axios = require('axios');
 const mysql = require("mysql2/promise");
 const like = require('../models/like');
 const { response } = require('express');
+const { appendFile } = require('fs');
 
 require("dotenv").config({ path: ".env" });
 
 const router = express.Router();
-
-// router.use(cookieParser());
-// https://blog.naver.com/PostView.naver?blogId=pjok1122&logNo=221555161680 => express-mysql-session 참고한 블로그
-// const sessionStore = new mySQLStore({
-//     host: 'localhost',
-//     port: 3306,
-//     user: 'root',
-//     password: process.env.SEQUELIZE_PASSWORD,
-//     database: 'khr'
-// });
 
 router.use(session({
     secret: process.env.SESSION_SECRET,
@@ -85,6 +77,7 @@ router.get('/count', async (req, res) =>{
     }
 });
 
+
 /** 3개의 유사한 의안 id를 반환. 의안 텍스트를 보내면 유사한 의안 목록을 반환하는 api에 보내서 결과를 가져옴.*/
 router.get('/:billId/similar', async (req, res, next) => {
     const billId = req.params.billId;
@@ -133,7 +126,7 @@ router.get('/thisWeek', async(req, res, next) => {
         return res.status(200).json({ success: true, bills: bills });
     } catch(err) {
         console.log(err);
-        return res.status(201).json({ success: false });
+        return res.status(200).json({ success: false });
     }
 });
 
@@ -194,70 +187,94 @@ router.post('/:billId/like', async(req, res, next) => {
         return res.status(200).json({ success: true });
     } catch(err) {
         console.log(err);
-        return res.status(201).json({ success: false });
+        return res.status(200).json({ success: false });
     }
 });
 
 
+/** 의안 전체 목록 가져오기 - 한 페이지 10개, sort = { 1: 최신순, 2: 인기순 } */
+router.get('/list', async(req, res) => {
+    const queryData = url.parse(req.url, true).query;
+    const pageNum = Number(queryData.page || 1);
+    const sort = Number(queryData.sort || 1);
+    const pageSize = 10;
+    const offset = pageSize * (pageNum - 1);
+    
+    if (sort == 1) {    // 최신순
+        await Bill.findAll({
+            offset: offset,
+            limit: pageSize,
+            order: [[ "created_at", "DESC" ]]
+        })
+        .then(result => {
+            return res.status(200).json({
+                success: true,
+                bills: result,
+                totalcount: result.length
+            });
+        })
+        .catch( err => {
+            console.log(err);
+            return res.status(200).json({ success: false });
+        });
+    }
+    else if(sort == 2) {    // 인기순 
+        await Bill.findAll({
+            // offset: pageSize * (pageNum - 1),
+            // limit: pageSize,
 
-//성민
-router.get('/:billId', async(req, res)=>{
-    console.log(Bill);
+            // include : [{
+            //     model: Like,
+            //     attributes : [[sequelize.fn('count', sequelize.col('id')), 'likeCount']],
+            //     // as: 'likes',
+            //     group : ['bill_id'],
+            //     order : [[sequelize.literal('likeCount'), 'DESC']],
+            // }],
+            // order: [['likes', "DESC"]],
+
+
+            include: [{
+                    model: Like, 
+                    attributes: ['id', 'bill_id'],
+                }],
+            group: ['likes.bill_id'],
+            order: [[sequelize.literal("COUNT(likes.id)"), "DESC"]],
+
+            // order: [[sequelize.literal('COUNT(`likes`.`bill_id`)'), 'DESC']],
+            // include: [
+            //     {
+            //         model: Like,
+            //         // as: 'likes',
+            //         attributes: [
+            //             // [sequelize.literal('SELECT cnt FROM (SELECT bill_id, COUNT(id) AS cnt FROM likes GROUP BY bill_id)'), 'likeCount']
+            //             [sequelize.fn('count', sequelize.col(sequelize.literal('SELECT id FROM likes GROUP BY bill_id'))), 'likeCount']
+            //         ],
+            //     },
+            // ],
+            // order: [['likes.likeCount', 'DESC']],
+
+            // group: ["likes.bill_id"],            
+            // order: [[Like, sequelize.literal("(COUNT(`likes`.`id`)"), "DESC"]],
+        })
+        .then( result => {
+            return res.status(200).json({
+                success: true,
+                bills: result.slice(offset, offset+pageSize)    // offset과 limit을 쓰면 sequelize 에러 발생
+            });
+        })
+        .catch( err => {
+            console.log(err);
+            return res.status(200).json({ success: false });
+        });
+    }
+});
+
+
+/** billId로 의안 전체 내용 가져오기 */
+router.get('/:billId', async(req, res) => {
     try{
-        const bill = await Bill.findOne({ where: { id: req.params.billId} });
+        const bill = await Bill.findOne({ where: { id: req.params.billId } });
         return res.status(200).json({ success: true, bill: bill });
-    } catch(err){
-        console.log(err);
-        return res.status(200).json({ success: false, error: err });
-    }
-});
-
-router.get('/name/:memberId', async(req, res)=>{
-    try{
-        const bills = await Bill.findAll({ where: { main_proposer: req.params.memberId} });
-        console.log(bills.title);
-        return res.status(200).json({ success: true, bills: bills });
-    } catch(err){
-        console.log(err);
-        return res.status(200).json({ success: false, error: err });
-    }
-});
-
-//미완성
-// router.get('/hashtag/re/:hashtagName', async(req, res)=>{
-//     console.log('뭥미');
-//     try{
-//         console.log('뭥미');
-//         const str = req.body.Hashtag.match(/#.+/g); //문자열과 정규식 매치떄문에 쓰는거데
-//         if(str){
-//             const result = await Promise.all(
-//                 str.map(tag => {
-//                     return Hashtag.findOrCreate({
-//                         where: { title: tag.slice(1).toLowerCase()},
-//                     })
-//                 }),
-//             );
-//             await Bill.addHashtags(result.map(r => r[0]));
-//         }
-//         //const bills = await Bill.findAll({ where: { hashtag: req.params.hashtagName } });
-//         //return res.status(200).json({ success: true, bills: bills });
-//     } catch(err){
-//         console.log(err);
-//         return res.status(200).json({ success: false, error: err });
-//     }
-// });
-
-router.get('/hashtag/search/:hashtagName', async(req, res)=>{
-    try {
-        const str = req.params.hashtagName;
-
-        if (str != null) {
-            const hashidr = await Hashtag.findOne({ where: { name: str }});
-            console.log('hashidr:' , hashidr);
-            const billhashid = await hashidr.getBills();
-            console.log('\nbillhashid:', billhashid,'\n');
-            return res.status(200).json({ success: true, bills: billhashid });
-        }
     } catch(err) {
         console.log(err);
         return res.status(200).json({ success: false });
@@ -265,37 +282,30 @@ router.get('/hashtag/search/:hashtagName', async(req, res)=>{
 });
 
 
+/** memberId로 의원이 발의한 법안 가져오기 - 한 페이지 4개, 최신순 */
+router.get('/name/:memberId', async(req, res) => {
+    const pageNum = Number(url.parse(req.url, true).query.page || 1);
+    const pageSize = 4;
+    
+    const member = await Member.findOne({   
+        where: { id: req.params.memberId }, 
+    }); 
 
-// router.get('/hashtag/rew/:hashtagName', async(req, res)=>{
-//     try{
-//         const bills = await Bill.findAll({ where: { hashtag: req.params.hashtagName } });
-//         //console.log(bills[1].id);
-//         return res.status(200).json({ success: true, bills: bills });
-//     } catch(err){
-//         console.log(err);
-//         return res.status(200).json({ success: false, error: err });
-//     }
-// });
-
-
-router.get('/hashtag/random', async(req, res)=>{
-    try{
-        let randomhash = [];
-        for(let i=1; i<4; i++){
-            const r = getRandomInt(1, 3);
-            const htf = await Hashtag.findOne({ where: { id: r } });
-            randomhash.push(htf.name);
-            console.log('fdf', randomhash);
-        }
-        return res.status(200).json({ success: true, randomhash: randomhash });
-    } catch(err){
-        console.log(err);
-        return res.status(200).json({ success: false, error: err });
-    }
+    await Bill.findAll({
+        offset: pageSize * (pageNum - 1),
+        limit: pageSize,
+        where: {
+            main_proposer: member.name
+        },
+        order: [[ 'created_at', 'desc' ]],
+    })
+    .then(result => {
+        return res.status(200).json({
+            success: true,
+            bills: result
+        });
+    })
 });
 
-function getRandomInt(min, max) { 
-    return Math.floor(Math.random() * (max - min)) + min;
-};
 
 module.exports = router;

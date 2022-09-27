@@ -2,7 +2,7 @@ paths:
   /api/member/{memberId}:
     get:
       summary: "memberId에 해당하는 의원 조회"
-      description: "params에 member의 id를 담아 Get방식으로 요청"
+      description: "params에 member의 id를 담아 Get방식으로 요청. 내부적으로 유사한 의원도 찾아서 반환."
       tags: [Member]
       parameters:
         - name: "memberId"
@@ -21,9 +21,89 @@ paths:
           content:
             application/json:
               schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-                members:
-                  type: array
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  member:
+                    type: Object
+                  similarMembers:
+                    type: array
+                    items:
+                      type: string
+                      description: "array of 4 Member IDs"
+                    minItems: 4
+                    maxItems: 4
+
+  /api/member/{memberId}/similar:
+    get:
+      summary: "(쓰이지 않을 예정!!)유사한 의원 조회(의원 상세페이지)"
+      description: "4개의 의원 ID를 목록으로 반환. params에 member의 id를 담아 get 요청, 다른 api 서버에서 반환된 유사한 의원 결과를 조회할 수 있도록 함."
+      tags: [Member]
+      parameters:
+        - name: "memberId"
+          in: "path"
+          required: true
+          description: "의원 ID"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "L2I9861C"
+              summary: "example member ID"
+      responses:
+        "200":
+          description: "유사한 의원 ID 목록"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  members:
+                    type: array
+                    items:
+                      type: string
+                      description: "array of 4 Member IDs"
+                    minItems: 4
+                    maxItems: 4
+
+  /api/member/list?page={pageNum}&party={1 to 6}:
+    get:
+      summary: "국회의원 목록 12개씩 가져오기 + 정당별검색 + 페이지네이션"
+      description: "국회의원 목록을 가져오는 라우터 입니다. 한 페이지에 12개를 담고, page 쿼리는 현재 페이지 번호를 의미하고 party는 정당별로 목록을 반환하도록 합니다. 정당은 1:더불어민주당, 2:국민의힘, 3: 정의당, 4: 기본소득당, 5:시대전환당, 6:무소속 를 의미합니다. page는 꼭 넣어야하지만 party는 넣지 않아도 모든 정당을 반환합니다."
+      tags: [Member]
+      parameters:
+        - in: query
+          name: page
+          required: true
+          schema:
+            type: integer
+          description: 현재 페이지 번호. 한 페이지에는 12개의 의원을 담음
+        - in: query
+          name: party
+          required: false
+          schema:
+            type: integer
+          description: "1~6의 정수. 1:더불어민주당, 2:국민의힘, 3: 정의당, 4: 기본소득당, 5:시대전환당, 6:무소속"
+      responses:
+        "200":
+          description: 12개의 의원 목록
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  members:
+                    type: array
+                    items:
+                      type: object
+                      description: "array of 0~12 List of Members"
+                    minItems: 0
+                    maxItems: 12
+                  totalcount:
+                    type: integer
+                    description: "의원 목록 개수"

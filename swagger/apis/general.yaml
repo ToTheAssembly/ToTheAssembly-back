@@ -1,0 +1,89 @@
+paths:
+  /api/hashtag/search/{hashtagName}:
+    get:
+      summary: "해시태그로 해당 해시태그 갖는 의안들 찾기"
+      description: "params에 hashtagName을 담아 Get방식으로 요청"
+      tags: [Hashtag]
+      parameters:
+        - name: "hashtagName"
+          in: "path"
+          required: true
+          description: "해시태그 이름"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "공무원"
+              summary: "example hashtag name"
+      responses:
+        "200":
+          description: "해당 해시태그를 갖는 의안 정보"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  bills:
+                    type: array
+
+  /api/hashtag/random:
+    get:
+      summary: "해시태그 랜덤으로 6개 제시"
+      description: "Get방식으로 요청"
+      tags: [Hashtag]
+      responses:
+        "200":
+          description: "랜덤 해시태그"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  randomhash:
+                    type: array
+                    items:
+                      type: string
+                      description: "array of 6 Random hashtags"
+                    minItems: 6
+                    maxItems: 6
+
+  /api/search?q={searchWord}:
+    get:
+      summary: "검색 라우터"
+      description: "검색창에 검색어를 입력하면 실행되는 라우터로 다른 api서버에서 받아온 그 검색어와 유사한 의안 목록 20개, 의원 목록 20개, 해시태그 name 8개를 return"
+      tags: [Search]
+      responses:
+        "200":
+        description: "유효한 검색어를 입력하면 200 코드와 함께 제대로 된 결과를 반환. 아니면 200코드와 false, 빈 배열을 반환"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                bills:
+                  type: array
+                  items:
+                    type: string
+                    description: "array of 20 Bills"
+                  minItems: 20
+                  maxItems: 20
+                members:
+                  type: array
+                  items:
+                    type: string
+                    description: "array of 20 Members"
+                  minItems: 20
+                  maxItems: 20
+                hashtags:
+                  type: array
+                  items:
+                    type: string
+                    description: "array of 0~8 Hashtag names"
+                  minItems: 0
+                  maxItems: 8
