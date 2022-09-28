@@ -1,9 +1,9 @@
 const express = require('express');
 const url = require('url');
 const sequelize = require('sequelize');
-const session = require('express-session');
-const FileStore = require('session-file-store')(session);
-const mySQLStore = require('express-mysql-session')(session);
+// const session = require('express-session');
+// const FileStore = require('session-file-store')(session);
+// const mySQLStore = require('express-mysql-session')(session);
 const { Bill, Like, Member } = require('../models');
 const axios = require('axios');
 const mysql = require("mysql2/promise");
@@ -15,13 +15,13 @@ require("dotenv").config({ path: ".env" });
 
 const router = express.Router();
 
-router.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true,
-    store: new FileStore(),
-    cookie: { maxAge: 60*60*24 }  // 24시간 뒤 만료(자동 삭제)
-}));
+// router.use(session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: true,
+//     saveUninitialized: true,
+//     store: new FileStore(),
+//     cookie: { maxAge: 60*60*24 }  // 24시간 뒤 만료(자동 삭제)
+// }));
 
 // db connection
 const connection = mysql.createPool({
