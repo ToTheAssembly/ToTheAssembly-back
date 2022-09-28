@@ -94,24 +94,31 @@ router.get('/:memberId', async(req, res)=>{
     try{
         const member = await Member.findOne({ where: { id: req.params.memberId} });
 
-        // 아직 flask 서버가 공사중
-        return res.status(200).json({ success: true, member: member, similarMembers: ['L2I9861C', 'EMC8812P'] });
-
-        // if(member) {
-        //     await axios
-        //         .post(`${process.env.MEMBER_API_URL}`, {
-        //             memberId: memberId,
-        //         })
-        //         .then((response) => {
-        //             return res.status(200).json({ success: true, member: member, similarMembers: response.data.members });
-        //         });
-        // }
-        // else {
-        //     return res.status(200).json({ success: false, message: '국회의원을 찾을 수 없습니다.' });
-        // }
+        if(member) {
+            await axios
+                .post(`${process.env.MEMBER_API_URL}`, {
+                    memberId: req.params.memberId,
+                })
+                .then(async (response) => {
+                    let similarMembers = [];
+                    
+                    for(m in response.data.members) {
+                        similarMembers.push(await Member.findOne({ where: { id: m } }));
+                    }
+                    
+                    return res.status(200).json({ 
+                        success: true, 
+                        member: member, 
+                        similarMembers: similarMembers
+                        });
+                });
+        }
+        else {
+            return res.status(200).json({ success: false, message: '국회의원을 찾을 수 없습니다.' });
+        }
     } catch(err){
         console.log(err);
-        return res.status(200).json({ success: false });
+        return res.status(200).json({ success: false, message: "Error has occured" });
     }
 });
 

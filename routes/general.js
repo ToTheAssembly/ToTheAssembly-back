@@ -65,7 +65,7 @@ function getRandomInt() {
 // post로 보내는거 "검색어"
 // 받아오는거 { bills: [], members: [], hashtags: [] }
 // res 도 동일
-// 한 페이지에 의안 5개, 의원 4개 => 페이지네이션 추가해야함!!(가능한..?) => 20개 목록 전달로 수정
+// 한 페이지에 의안 5개, 의원 4개 페이지 네이션에서 20개 목록 전달로 수정
 router.get('/search', async(req, res) => {
     const queryData = url.parse(req.url, true).query;
     const searchWord = queryData.q;
@@ -73,13 +73,6 @@ router.get('/search', async(req, res) => {
     // const MEMBERSIZE = 4;
     // const BILLSIZE = 5;
 
-    // flask는 아직 공사중~
-    return res.status(200).json({ success: true, 
-        bills: ['PRC_S2P2C0M9U0Y1I1E7U1R9H2B9P5L6R8', 'PRC_K2D2Y0Y8E1L9S1Z8I3M3B2O5J1Y8T5'], 
-        members: ['L2I9861C', 'EMC8812P'], 
-        hashtags: ['징계', '공무원', '채용'] 
-        });
-    // // 테스트는 아직 안 된 코드
     if(searchWord) {
         await axios
             .post(`${process.env.SEARCH_API_URL}`, {
@@ -89,25 +82,28 @@ router.get('/search', async(req, res) => {
                 let bills = [];
                 let members = [];
                     
-                for(b in response.bills) {
-                    bills.push(await Bill.findOne({ where: id = b }));
+                for(b in response.data.bills) {
+                    bills.push(await Bill.findOne({ where: { id: b } }));
                 }
-                for(m in response.members) {
-                    members.push(await Member.findOne({ where: id = m }));
+                for(m in response.data.members) {
+                    members.push(await Member.findOne({ where: { id: m } }));
                 }
                 
                 return res.status(200).json({ 
                     success: true, 
                     bills: bills, 
                     members: members, 
-                    hashtags: response.hashtags,
+                    hashtags: response.data.hashtags,
                     });
+            })
+            .catch(err => {
+                console.log(err);
+                return res.status(200).json({ success: false, message: "Error has occured", bills: [], members: [], hashtags: [] });
             });
     }
     else {
         return res.status(200).json({ success: false, message: '유효하지 않은 검색어입니다.', bills: [], members: [], hashtags: [] });
     }
-    
 });
 
 module.exports = router;

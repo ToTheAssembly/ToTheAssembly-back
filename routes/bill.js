@@ -87,23 +87,34 @@ router.get('/:billId/similar', async (req, res, next) => {
 
         if(bill) {
             await axios
-                .post(`${process.env.API_URL}`, {
+                .post(`${process.env.RECCOMEND_API_URL}`, {
                     billId: billId,
                 })
-                .then((response) => {
-                    const bills = response.data.bills;
-                    members = response.data.members;
-                    console.log(response.data);
-                    return res.status(200).json({ success: true, bills: bills, members: members });
+                .then(async (response) => {
+                    let bills = [];
+                    let members = [];
+                        
+                    for(b in response.data.bills) {
+                        bills.push(await Bill.findOne({ where: { id: b } }));
+                    }
+                    for(m in response.data.members) {
+                        members.push(await Member.findOne({ where: { id: m } }));
+                    }
+
+                    return res.status(200).json({ 
+                        success: true, 
+                        bills: bills, 
+                        members: members, 
+                        });
                 });
         }
         else {
-            return res.status(200).json({ success: false, message: '의안을 찾을 수 없습니다.' });
+            return res.status(200).json({ success: false, message: '의안을 찾을 수 없습니다.', bills: [], members: [] });
         }
     }
     catch(err) {
         console.log(err);
-        return res.status(200).json({ success: false });
+        return res.status(200).json({ success: false, message: "Error has occured", bills: [], members: [] });
     }
 });
 
