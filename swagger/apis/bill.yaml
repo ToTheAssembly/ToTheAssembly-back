@@ -87,17 +87,19 @@ paths:
   /api/bill/{billId}/like:
     post:
       summary: "좋아요 추가"
-      description: "params로 받아온 billId로 좋아요를 하나 추가한다. 좋아요의 ID는 autoIncrement로 자동으로 생성되며 bill_id는 params의 billId로 만든다."
+      description: "params로 받아온 billId로 좋아요를 하나 추가한다. 좋아요의 ID는 autoIncrement로 자동으로 생성되며 bill_id는 params의 billId로 만든다. 좋아요가 눌렸다면 alreadyLiked에 true값을 보낸다. 처음에 요청 보낼 때는 alreadyLiked 값을 보내지 않아도 괜찮다."
       tags: [Like]
     responses:
       "200":
-        description: "좋아요 추가 성공 여부"
+        description: "좋아요 추가 성공 여부와 이미 좋아요를 눌렀는지의 여부"
         content:
           application/json:
             schema:
               type: object
               properties:
                 success:
+                  type: boolean
+                alreadyLiked:
                   type: boolean
 
   /api/bill/{billId}:

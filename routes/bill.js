@@ -143,68 +143,67 @@ router.get('/thisWeek', async(req, res, next) => {
 });
 
 
-/** 좋아요 추가 post 라우터 */
-router.post('/:billId/like', async(req, res, next) => {
-    // req.session.destroy();
+/** 세션을 사용한 좋아요 추가 post 라우터 */
+// router.post('/:billId/like', async(req, res, next) => {
+//     // req.session.destroy();
 
-    const billId = req.params.billId;
+//     const billId = req.params.billId;
 
-    try {
-        // 아직 한 번도 좋아요를 누른적 없을 때
-        if (!req.session.billId) {
-            req.session.billId = [ billId ];
+//     try {
+//         // 아직 한 번도 좋아요를 누른적 없을 때
+//         if (!req.session.billId) {
+//             req.session.billId = [ billId ];
 
-            // 좋아요 +1
-            await Like.create({
-                bill_id: billId,
-            })
-            .then( result => {
-                console.log("좋아요 추가 완료", result);
+//             // 좋아요 +1
+//             await Like.create({
+//                 bill_id: billId,
+//             })
+//             .then( result => {
+//                 console.log("좋아요 추가 완료", result);
 
-            })
-            .catch( err => {
-                console.log("좋아요 추가 실패");
-                console.log(err);
-            });
+//             })
+//             .catch( err => {
+//                 console.log("좋아요 추가 실패");
+//                 console.log(err);
+//             });
 
-        } else { // 좋아요를 누른 적 있을 때
-            let bill_arr = req.session.billId;
-            let flag = true;
-            // 반복문으로 현 billId가 있는지 확인
-            for (let i = 0; i < bill_arr.length ; i++) {
-                console.log(bill_arr[i]);
-                if (bill_arr[i] === billId) {
-                    flag = false;
-                    break;
-                }
-            }
-            // 현 billId가 없다면 추가
-            if (flag) {
-                req.session.billId.push(billId);
+//         } else { // 좋아요를 누른 적 있을 때
+//             let bill_arr = req.session.billId;
+//             let flag = true;
+//             // 반복문으로 현 billId가 있는지 확인
+//             for (let i = 0; i < bill_arr.length ; i++) {
+//                 console.log(bill_arr[i]);
+//                 if (bill_arr[i] === billId) {
+//                     flag = false;
+//                     break;
+//                 }
+//             }
+//             // 현 billId가 없다면 추가
+//             if (flag) {
+//                 req.session.billId.push(billId);
                 
-                // 좋아요 +1
-                await Like.create({
-                    bill_id: billId,
-                })
-                .then( result => {
-                    console.log("좋아요 추가 완료");
-    
-                })
-                .catch( err => {
-                    console.log("좋아요 추가 실패");
-                    console.log(err);
-                });
-            }
-        }
-        return res.status(200).json({ success: true });
-    } catch(err) {
-        console.log(err);
-        return res.status(200).json({ success: false });
-    }
-});
+//                 // 좋아요 +1
+//                 await Like.create({
+//                     bill_id: billId,
+//                 })
+//                 .then( result => {
+//                     console.log("좋아요 추가 완료");
+//                 })
+//                 .catch( err => {
+//                     console.log("좋아요 추가 실패");
+//                     console.log(err);
+//                 });
+//             }
+//         }
+//         return res.status(200).json({ success: true });
+//     } catch(err) {
+//         console.log(err);
+//         return res.status(200).json({ success: false });
+//     }
+// });
 
 /** 변수를 사용한 좋아요 추가 post 라우터 */
-router.post('/:billId/like2', async(req, res, next) => {
+router.post('/:billId/like', async(req, res, next) => {
     const billId = req.params.billId;
     const alreadyLiked = (req.body.alreadyLiked ?? false);
 
@@ -215,7 +214,7 @@ router.post('/:billId/like2', async(req, res, next) => {
             return res.status(200).json({ success: true, alreadyLiked: true });
         }
         else {
-            return res.status(200).json({ success: false, alreadyLiked: true });  // alreadyLike 추가?
+            return res.status(200).json({ success: false, alreadyLiked: true }); 
         }
         } catch(err) {
             console.log(err);
