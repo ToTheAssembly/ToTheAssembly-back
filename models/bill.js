@@ -52,6 +52,9 @@ module.exports = (sequelize, Datatypes) => (
         hashtag: {
             type: Datatypes.STRING(60),
         },
+        category: {
+            type: Datatypes.STRING(30)
+        }
     }, {
         timestamps: false,
         // 데이터베이스 문자열을 한글을 지원하는 UTF8로 설정하겠다는 뜻
