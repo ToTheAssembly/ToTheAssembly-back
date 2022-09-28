@@ -23,7 +23,7 @@ paths:
   /api/bill/{billId}/similar:
     get:
       summary: "유사한 의안, 의원 조회"
-      description: "3개의 의안 ID와 4개의 의원 ID를 목록으로 반환. params에 bill의 id를 담아 get 요청, 다른 api 서버에서 반환된 유사한 의안, 의원 결과를 조회할 수 있도록 함."
+      description: "3개의 의안과 4개의 의원을 목록으로 반환. params에 bill의 id를 담아 get 요청, 다른 api 서버에서 반환된 유사한 의안, 의원 결과를 조회할 수 있도록 함."
       tags: [Bill]
       parameters:
         - name: "billId"
@@ -50,25 +50,25 @@ paths:
                     type: array
                     items:
                       type: string
-                      description: "array of 3 Bill IDs"
+                      description: "array of 3 Bills"
                     minItems: 3
                     maxItems: 3
                   members:
                     type: array
                     items:
                       type: string
-                      description: "array of 4 Member IDs"
+                      description: "array of 4 Members"
                     minItems: 4
                     maxItems: 4
 
   /api/bill/thisWeek:
     get:
-      summary: "이번주 좋아요 수 가장 많은 의안 ID 0~5개 목록"
-      description: "이번주에 좋아요를 가장 많이 받은 의안의 ID 0~5개를 array를 반환"
+      summary: "이번주 좋아요 수 가장 많은 의안 0~5개 목록"
+      description: "이번주에 좋아요를 가장 많이 받은 의안 0~5개를 array를 반환"
       tags: [Like]
     responses:
       "200":
-        description: "의안 ID 0~5개 array"
+        description: "의안 0~5개 array"
         content:
           application/json:
             schema:
@@ -80,7 +80,7 @@ paths:
                   type: array
                   items:
                     type: string
-                    description: "array of 0~5 Bill IDs"
+                    description: "array of 0~5 Bills"
                   minItems: 0
                   maxItems: 5
 
