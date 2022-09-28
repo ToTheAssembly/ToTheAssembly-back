@@ -17,9 +17,10 @@ const router = express.Router();
 
 router.use(session({
     secret: process.env.SESSION_SECRET,
-    resave: false,
+    resave: true,
     saveUninitialized: true,
-    store: new FileStore()
+    store: new FileStore(),
+    cookie: { maxAge: 60*60*24 }  // 24시간 뒤 만료(자동 삭제)
 }));
 
 // db connection
@@ -202,6 +203,26 @@ router.post('/:billId/like', async(req, res, next) => {
     }
 });
 
+/** 변수를 사용한 좋아요 추가 post 라우터 */
+router.post('/:billId/like2', async(req, res, next) => {
+    const billId = req.params.billId;
+    const alreadyLiked = (req.body.alreadyLiked ?? false);
+
+    try {  
+        if (!alreadyLiked) {
+            // 좋아요 +1
+            await Like.create({ bill_id: billId });        
+            return res.status(200).json({ success: true, alreadyLiked: true });
+        }
+        else {
+            return res.status(200).json({ success: false, alreadyLiked: true });  // alreadyLike 추가?
+        }
+        } catch(err) {
+            console.log(err);
+            return res.status(200).json({ success: false });
+        }
+});
+
 
 /** 의안 전체 목록 가져오기 - 한 페이지 10개, sort = { 1: 최신순, 2: 인기순 } */
 router.get('/list', async(req, res) => {
@@ -231,41 +252,12 @@ router.get('/list', async(req, res) => {
     }
     else if(sort == 2) {    // 인기순 
         await Bill.findAll({
-            // offset: pageSize * (pageNum - 1),
-            // limit: pageSize,
-
-            // include : [{
-            //     model: Like,
-            //     attributes : [[sequelize.fn('count', sequelize.col('id')), 'likeCount']],
-            //     // as: 'likes',
-            //     group : ['bill_id'],
-            //     order : [[sequelize.literal('likeCount'), 'DESC']],
-            // }],
-            // order: [['likes', "DESC"]],
-
-
             include: [{
                     model: Like, 
                     attributes: ['id', 'bill_id'],
                 }],
             group: ['likes.bill_id'],
             order: [[sequelize.literal("COUNT(likes.id)"), "DESC"]],
-
-            // order: [[sequelize.literal('COUNT(`likes`.`bill_id`)'), 'DESC']],
-            // include: [
-            //     {
-            //         model: Like,
-            //         // as: 'likes',
-            //         attributes: [
-            //             // [sequelize.literal('SELECT cnt FROM (SELECT bill_id, COUNT(id) AS cnt FROM likes GROUP BY bill_id)'), 'likeCount']
-            //             [sequelize.fn('count', sequelize.col(sequelize.literal('SELECT id FROM likes GROUP BY bill_id'))), 'likeCount']
-            //         ],
-            //     },
-            // ],
-            // order: [['likes.likeCount', 'DESC']],
-
-            // group: ["likes.bill_id"],            
-            // order: [[Like, sequelize.literal("(COUNT(`likes`.`id`)"), "DESC"]],
         })
         .then( result => {
             return res.status(200).json({
