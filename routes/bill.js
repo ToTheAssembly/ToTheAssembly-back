@@ -53,7 +53,7 @@ router.get('/count', async (req, res) =>{
         //최근 일주일동안 발의안 의안 count
         const weekQuery2 = 'SELECT COUNT(*) as weekCounts FROM bills WHERE created_at BETWEEN DATE_ADD(NOW(),INTERVAL -1 WEEK ) AND NOW()';
         // 시연을 위해 8월 3일을 기준으로 시행
-        const weekQuery3 = 'SELECT COUNT(*) as weekCounts FROM bills WHERE created_at BETWEEN DATE_ADD(Date("2022-08-20"),INTERVAL -1 WEEK ) AND Date("2022-08-03")';
+        const weekQuery3 = 'SELECT COUNT(*) as weekCounts FROM bills WHERE created_at BETWEEN DATE_ADD(Date("2022-08-20"),INTERVAL -1 WEEK ) AND Date("2022-08-20")';
         let [rows, _] = await conn.query(weekQuery3);
         const thisWeek = rows[0].weekCounts;
         
