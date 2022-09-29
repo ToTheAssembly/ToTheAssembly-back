@@ -45,25 +45,28 @@ router.get('/count', async (req, res) =>{
         const month = today.getMonth() + 1;
         const date = today.getDate();
 
-        // 일주일동안 발의된 의안 count
         const conn = await connection.getConnection();
 
-        const weekQuery = 'SELECT COUNT(*) as weekCounts FROM bills WHERE created_at BETWEEN \''
-        + year + '-' + month + '-' + (date-7) + '\' AND \'' + year + '-' + month + '-' + date + '\'';
-
+        // 일주일동안 발의된 의안 count
+        // const weekQuery = 'SELECT COUNT(*) as weekCounts FROM bills WHERE created_at BETWEEN \''
+        // + year + '-' + month + '-' + (date-7) + '\' AND \'' + year + '-' + month + '-' + date + '\'';
+        //최근 일주일동안 발의안 의안 count
         const weekQuery2 = 'SELECT COUNT(*) as weekCounts FROM bills WHERE created_at BETWEEN DATE_ADD(NOW(),INTERVAL -1 WEEK ) AND NOW()';
-
-        let [rows, _] = await conn.query(weekQuery);
+        // 시연을 위해 8월 3일을 기준으로 시행
+        const weekQuery3 = 'SELECT COUNT(*) as weekCounts FROM bills WHERE created_at BETWEEN DATE_ADD(Date("2022-08-20"),INTERVAL -1 WEEK ) AND Date("2022-08-03")';
+        let [rows, _] = await conn.query(weekQuery3);
         const thisWeek = rows[0].weekCounts;
         
+        // 이번달 발의된 의안 count
         const monthQuery = 'SELECT COUNT(*) as monthCounts FROM bills WHERE MONTH(created_at)=' + month + ' AND YEAR(created_at)=' + year;
-        
         // 최근 한 달을 count하는 쿼리
         const monthQuery2 = 'SELECT COUNT(*) as monthCounts FROM bills WHERE created_at BETWEEN DATE_ADD(NOW(),INTERVAL -1 MONTH ) AND NOW()';
-
-        [rows, _] = await conn.query(monthQuery);
+        // 시연을 위해 8월을 기준으로 변경
+        const monthQuery3 = 'SELECT COUNT(*) as monthCounts FROM bills WHERE MONTH(created_at)=8 AND YEAR(created_at)=2022';
+        [rows, _] = await conn.query(monthQuery3);
         const thisMonth = rows[0].monthCounts;
 
+        // 제 21대 국회에서 발의된 총 의안 count
         const totalQuery = 'SELECT COUNT(*) as totalCounts FROM bills';
         [rows, _] = await conn.query(totalQuery);
         const totalCount = rows[0].totalCounts;
@@ -72,8 +75,8 @@ router.get('/count', async (req, res) =>{
 
         return res.status(200).json({ success: true, thisWeek: thisWeek, thisMonth: thisMonth, totalCount: totalCount });
     } 
-    catch(e) {
-        console.log(e);
+    catch(err) {
+        console.log(err);
         return res.status(200).json({ success: false });
     }
 });
