@@ -19,9 +19,6 @@ module.exports = (sequelize, Datatypes) => (
             defaultValue: Datatypes.NOW,
             //type: Datatypes.DATEONLY,
         },
-        detail_link: {
-            type: Datatypes.STRING(150),
-        },
         proposer: {
             // ㅇㅇㅇ외 100인
             type: Datatypes.STRING(20),

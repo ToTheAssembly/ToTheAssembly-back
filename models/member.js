@@ -48,7 +48,7 @@ module.exports = (sequelize, Datatypes) => (
         },
         image: {
             // 의원 사진 URL
-            type: Datatypes.STRING(100),
+            type: Datatypes.STRING(200),
         },
     }, {
         timestamps: false,
