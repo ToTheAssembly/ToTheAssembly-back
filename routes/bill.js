@@ -97,8 +97,11 @@ router.get('/:billId/similar', async (req, res, next) => {
                 .then(async (response) => {
                     let bills = [];
                     let members = [];
+
+                    console.log(response.data.bills);
                         
-                    for(b in response.data.bills) {
+                    for(b of response.data.bills) {
+                        console.log(b);
                         bills.push(await Bill.findOne({ where: { id: b } }));
                     }
                     for(m in response.data.members) {

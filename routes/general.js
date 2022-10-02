@@ -82,10 +82,10 @@ router.get('/search', async(req, res) => {
                 let bills = [];
                 let members = [];
                     
-                for(b in response.data.bills) {
+                for(b of response.data.bills) {
                     bills.push(await Bill.findOne({ where: { id: b } }));
                 }
-                for(m in response.data.members) {
+                for(m of response.data.members) {
                     members.push(await Member.findOne({ where: { id: m } }));
                 }
                 
