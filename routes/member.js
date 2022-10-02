@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const url = require('url');
 const { Member } = require('../models');
+const { off } = require('process');
 
 const router = express.Router();
 
@@ -102,7 +103,7 @@ router.get('/:memberId', async(req, res)=>{
                 .then(async (response) => {
                     let similarMembers = [];
                     
-                    for(m in response.data.members) {
+                    for(m of response.data.members) {
                         similarMembers.push(await Member.findOne({ where: { id: m } }));
                     }
                     
