@@ -130,6 +130,8 @@ paths:
                     type: boolean
                   bill:
                     type: object
+                  likeCount:
+                    type: integer
 
   /api/bill/name/{memberId}?page={pageNum}:
     get:

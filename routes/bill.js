@@ -264,7 +264,8 @@ router.get('/list', async(req, res) => {
         .then( result => {
             return res.status(200).json({
                 success: true,
-                bills: result.slice(offset, offset+pageSize)    // offset과 limit을 쓰면 sequelize 에러 발생
+                bills: result.slice(offset, offset+pageSize),    // offset과 limit을 쓰면 sequelize 에러 발생
+                totalCount: result.length
             });
         })
         .catch( err => {
@@ -279,7 +280,14 @@ router.get('/list', async(req, res) => {
 router.get('/:billId', async(req, res) => {
     try{
         const bill = await Bill.findOne({ where: { id: req.params.billId } });
-        return res.status(200).json({ success: true, bill: bill });
+
+        const likeCount = await Like.findOne({
+            attributes: ["bill_id", [sequelize.fn("count", "*"), "count"]],
+            group: "bill_id",
+            where: { bill_id : req.params.billId }
+        });
+
+        return res.status(200).json({ success: true, bill: bill, likeCount: likeCount==null ? 0 : likeCount.dataValues.count });
     } catch(err) {
         console.log(err);
         return res.status(200).json({ success: false });
