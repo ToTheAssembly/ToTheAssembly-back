@@ -30,15 +30,15 @@ paths:
                   similarMembers:
                     type: array
                     items:
-                      type: string
-                      description: "array of 4 Member IDs"
+                      type: Object
+                      description: "array of 4 Members"
                     minItems: 4
                     maxItems: 4
 
   /api/member/{memberId}/similar:
     get:
-      summary: "(쓰이지 않을 예정!!)유사한 의원 조회(의원 상세페이지)"
-      description: "4개의 의원 ID를 목록으로 반환. params에 member의 id를 담아 get 요청, 다른 api 서버에서 반환된 유사한 의원 결과를 조회할 수 있도록 함."
+      summary: "유사한 의원 조회(의원 상세페이지)"
+      description: "4개의 의원 목록을 반환. params에 member의 id를 담아 get 요청, 다른 api 서버에서 반환된 유사한 의원 결과를 조회할 수 있도록 함."
       tags: [Member]
       parameters:
         - name: "memberId"
@@ -53,7 +53,7 @@ paths:
               summary: "example member ID"
       responses:
         "200":
-          description: "유사한 의원 ID 목록"
+          description: "유사한 의원 목록"
           content:
             application/json:
               schema:
@@ -65,7 +65,7 @@ paths:
                     type: array
                     items:
                       type: string
-                      description: "array of 4 Member IDs"
+                      description: "array of 4 Members"
                     minItems: 4
                     maxItems: 4
 

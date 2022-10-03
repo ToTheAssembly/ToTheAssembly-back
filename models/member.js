@@ -7,9 +7,6 @@ module.exports = (sequelize, Datatypes) => (
         name: {
             type: Datatypes.STRING(10),
         },
-        hj_name:{
-            type: Datatypes.STRING(20),
-        },
         bth_sl: {
             type: Datatypes.STRING(5),
         },
@@ -48,7 +45,7 @@ module.exports = (sequelize, Datatypes) => (
         },
         image: {
             // 의원 사진 URL
-            type: Datatypes.STRING(100),
+            type: Datatypes.STRING(200),
         },
     }, {
         timestamps: false,

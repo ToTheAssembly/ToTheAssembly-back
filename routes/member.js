@@ -2,38 +2,42 @@ const express = require('express');
 const axios = require('axios');
 const url = require('url');
 const { Member } = require('../models');
+const { off } = require('process');
 
 const router = express.Router();
 
 /** 유사한 의원 추천(의원 상세페이지)-4개 */
-// 쓰이지 않을 예정
 router.get('/:memberId/similar', async (req, res, next) => {
     const memberId = req.params.memberId;
 
     try {
-        // const member = await Member.findOne({ where: { id: memberId } });
+        const member = await Member.findOne({ where: { id: memberId } });
 
-        // 아직 flask 서버가 공사중
-        return res.status(200).json({ success: true, members: ['L2I9861C', 'EMC8812P'] })
+        if(member) {
+            await axios
+                .post(`${process.env.MEMBER_API_URL}`, {
+                    memberId: memberId,
+                })
+                .then(async (response) => {
+                    let members = [];
+                    
+                    for(m of response.data.members) {
+                        members.push(await Member.findOne({ where: { id: m } }));
+                    }
 
-        // if(member) {
-        //     await axios
-        //         .post(`${process.env.MEMBER_API_URL}`, {
-        //             memberId: memberId,
-        //         })
-        //         .then((response) => {
-        //            // const members = response.data.members;
-        //             console.log(response.data);
-        //             return res.status(200).json({ success: true, members: response.data.members });
-        //         });
-        // }
-        // else {
-        //     return res.status(200).json({ success: false, message: '국회의원을 찾을 수 없습니다.' });
-        // }
-    }
-    catch(e) {
-        console.log(e);
-        return res.status(200).json({ success: false });
+                    return res.status(200).json({ 
+                        success: true, 
+                        members: members, 
+                    });
+                }
+            );
+        }
+        else {
+            return res.status(200).json({ success: false, message: '국회의원을 찾을 수 없습니다.' });
+        }
+    } catch(err) {
+        console.log(err);
+        return res.status(200).json({ success: false, message: 'Error has occured' });
     }
 });
 
@@ -94,24 +98,31 @@ router.get('/:memberId', async(req, res)=>{
     try{
         const member = await Member.findOne({ where: { id: req.params.memberId} });
 
-        // 아직 flask 서버가 공사중
-        return res.status(200).json({ success: true, member: member, similarMembers: ['L2I9861C', 'EMC8812P'] });
-
-        // if(member) {
-        //     await axios
-        //         .post(`${process.env.MEMBER_API_URL}`, {
-        //             memberId: memberId,
-        //         })
-        //         .then((response) => {
-        //             return res.status(200).json({ success: true, member: member, similarMembers: response.data.members });
-        //         });
-        // }
-        // else {
-        //     return res.status(200).json({ success: false, message: '국회의원을 찾을 수 없습니다.' });
-        // }
+        if(member) {
+            await axios
+                .post(`${process.env.MEMBER_API_URL}`, {
+                    memberId: req.params.memberId,
+                })
+                .then(async (response) => {
+                    let similarMembers = [];
+                    
+                    for(m of response.data.members) {
+                        similarMembers.push(await Member.findOne({ where: { id: m } }));
+                    }
+                    
+                    return res.status(200).json({ 
+                        success: true, 
+                        member: member, 
+                        similarMembers: similarMembers
+                        });
+                });
+        }
+        else {
+            return res.status(200).json({ success: false, message: '국회의원을 찾을 수 없습니다.' });
+        }
     } catch(err){
         console.log(err);
-        return res.status(200).json({ success: false });
+        return res.status(200).json({ success: false, message: "Error has occured" });
     }
 });
 

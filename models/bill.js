@@ -19,9 +19,6 @@ module.exports = (sequelize, Datatypes) => (
             defaultValue: Datatypes.NOW,
             //type: Datatypes.DATEONLY,
         },
-        detail_link: {
-            type: Datatypes.STRING(150),
-        },
         proposer: {
             // ㅇㅇㅇ외 100인
             type: Datatypes.STRING(20),
@@ -52,6 +49,9 @@ module.exports = (sequelize, Datatypes) => (
         hashtag: {
             type: Datatypes.STRING(60),
         },
+        category: {
+            type: Datatypes.STRING(30)
+        }
     }, {
         timestamps: false,
         // 데이터베이스 문자열을 한글을 지원하는 UTF8로 설정하겠다는 뜻
