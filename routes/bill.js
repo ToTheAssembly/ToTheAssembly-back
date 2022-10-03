@@ -99,7 +99,22 @@ router.get('/:billId/similar', async (req, res, next) => {
                     let members = [];
                         
                     for(b of response.data.bills) {
-                        bills.push(await Bill.findOne({ where: { id: b } }));
+                        const oneBill = await Bill.findOne({where: { id: b } });
+
+                        const likeCount = await Like.findOne({
+                            attributes: ["bill_id", [sequelize.fn("count", "*"), "count"]],
+                            group: "bill_id",
+                            where: { bill_id : b }
+                        });
+
+                        Object.defineProperty(oneBill.dataValues, 'likeCount', { 
+                            value : (likeCount==null ? 0 : likeCount.dataValues.count),
+                            writable: true,
+                            configurable: true,
+                            enumerable: true
+                        });
+
+                        bills.push(oneBill);
                     }
                     for(m of response.data.members) {
                         members.push(await Member.findOne({ where: { id: m } }));
@@ -276,7 +291,6 @@ router.get('/list', (req, res) => {
             attributes: ['id', 'bill_num', 'title', 'committee', 'created_at', 'proposer', 'party', 'main_proposer', 'proposer_array', 'proposer_link'
             , 'content', 'result', 'result_cd', 'hashtag', 'category', [sequelize.literal("COUNT(likes.id)"), "likeCount"]],
             order: [["likeCount", "DESC"]]
-            // order: [[sequelize.literal("COUNT(likes.id)"), "DESC"]]
         })
         .then( result => {
             return res.status(200).json({
