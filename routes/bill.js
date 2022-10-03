@@ -117,14 +117,27 @@ router.get('/:billId/similar', async (req, res, next) => {
                         bills.push(oneBill);
                     }
                     for(m of response.data.members) {
-                        members.push(await Member.findOne({ where: { id: m } }));
+                        const oneMem = await Member.findOne({ where: { id: m } });
+                        const oneBill = await Bill.findOne({ 
+                            attributes: ['id', 'title', 'main_proposer', 'hashtag'],
+                            where: { main_proposer: oneMem.dataValues.name }
+                        });
+
+                        Object.defineProperty(oneMem.dataValues, 'bill', { 
+                            value : oneBill,
+                            writable: true,
+                            configurable: true,
+                            enumerable: true
+                        });
+
+                        members.push(oneMem);
                     }
 
                     return res.status(200).json({ 
                         success: true, 
                         bills: bills, 
                         members: members, 
-                        });
+                    });
                 });
         }
         else {
