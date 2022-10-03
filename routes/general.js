@@ -14,7 +14,6 @@ router.get('/trend/:period', (req, res) => {
             period: req.params.period,
         })
         .then( response => {
-            
             return res.status(200).send(response.data);
         })
         .catch(err => {
