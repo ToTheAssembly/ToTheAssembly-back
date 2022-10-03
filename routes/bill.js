@@ -227,7 +227,7 @@ router.post('/:billId/like', async(req, res, next) => {
 
 
 /** 의안 전체 목록 가져오기 - 한 페이지 10개, sort = { 1: 최신순, 2: 인기순 } */
-router.get('/list', async(req, res) => {
+router.get('/list', (req, res) => {
     const queryData = url.parse(req.url, true).query;
     const pageNum = Number(queryData.page || 1);
     const sort = Number(queryData.sort || 1);
@@ -235,16 +235,30 @@ router.get('/list', async(req, res) => {
     const offset = pageSize * (pageNum - 1);
     
     if (sort == 1) {    // 최신순
-        await Bill.findAll({
+        Bill.findAll({
             offset: offset,
             limit: pageSize,
             order: [[ "created_at", "DESC" ]]
         })
-        .then(result => {
+        .then( async (bills) => {
+            for (const [index, bill] of bills.entries()) {
+                const likeCount = await Like.findOne({
+                    attributes: ["bill_id", [sequelize.fn("count", "*"), "count"]],
+                    group: "bill_id",
+                    where: { bill_id : bill.id }
+                });
+
+                Object.defineProperty(bills[index].dataValues, 'likeCount', { 
+                    value : (likeCount==null ? 0 : likeCount.dataValues.count),
+                    writable: true,
+                    configurable: true,
+                    enumerable: true
+                });
+            }
             return res.status(200).json({
                 success: true,
-                bills: result,
-                totalcount: result.length
+                bills: bills,
+                totalcount: bills.length
             });
         })
         .catch( err => {
@@ -253,13 +267,16 @@ router.get('/list', async(req, res) => {
         });
     }
     else if(sort == 2) {    // 인기순 
-        await Bill.findAll({
+        Bill.findAll({
             include: [{
                     model: Like, 
-                    attributes: ['id', 'bill_id'],
+                    attributes: [],
                 }],
             group: ['likes.bill_id'],
-            order: [[sequelize.literal("COUNT(likes.id)"), "DESC"]],
+            attributes: ['id', 'bill_num', 'title', 'committee', 'created_at', 'proposer', 'party', 'main_proposer', 'proposer_array', 'proposer_link'
+            , 'content', 'result', 'result_cd', 'hashtag', 'category', [sequelize.literal("COUNT(likes.id)"), "likeCount"]],
+            order: [["likeCount", "DESC"]]
+            // order: [[sequelize.literal("COUNT(likes.id)"), "DESC"]]
         })
         .then( result => {
             return res.status(200).json({
