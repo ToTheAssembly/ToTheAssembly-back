@@ -11,10 +11,11 @@ const router = express.Router();
 router.get('/trend/:period', (req, res) => {
     axios
         .post(`${process.env.TREND_API_URL}`, {
-            peroid: req.params.period,
+            period: req.params.period,
         })
         .then( response => {
-            return res.status(200).send(response);
+            
+            return res.status(200).send(response.data);
         })
         .catch(err => {
             console.log(err);

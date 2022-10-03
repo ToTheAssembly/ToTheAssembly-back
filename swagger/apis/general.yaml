@@ -1,4 +1,46 @@
 paths:
+  /api/trend/{period}:
+    get:
+      summary: "기간에 따른 토픽 트렌드 분석 키워드 반환"
+      description: "params에 2020-06 형태의 월 별 period를 담아 Get방식으로 요청하시면 됩니다. 기간은 2020-06부터 2022-09까지 있습니다. Get 요청을 보내시면 flask 서버로 넘어가서 키워드와 값을 추출해서 넘겨줍니다."
+      tags: [Trend]
+      parameters:
+      parameters:
+        - name: "period"
+          in: "path"
+          required: true
+          description: "기간"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "2021-04"
+              summary: "example period type"
+      responses:
+        "200":
+          description: "해당 기간의 토픽"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  topics:
+                    type: array
+                    items:
+                      type: string
+                      description: "array of 10 keywords"
+                    minItems: 10
+                    maxItems: 10
+                  values:
+                    type: array
+                    items:
+                      type: string
+                      description: "array of 10 values for keywords"
+                    minItems: 10
+                    maxItems: 10
+
   /api/hashtag/search/{hashtagName}:
     get:
       summary: "해시태그로 해당 해시태그 갖는 의안들 찾기"
