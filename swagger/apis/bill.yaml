@@ -205,10 +205,10 @@ paths:
                   totalcount:
                     type: integer
                     description: "의안 목록 개수"
-  /api/bill/search/{categoryName}:
+  /api/bill/search/{categoryName}?page:
     get:
       summary: "카테고리로 해당 카테고리 갖는 의안들 찾기"
-      description: "params에 categoryName을 담아 Get방식으로 요청"
+      description: "params에 categoryName을 담아 Get방식으로 요청. query에 page로 페이지네이션을 지원합니다."
       tags: [Bill]
       parameters:
         - name: "categoryName"

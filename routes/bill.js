@@ -381,17 +381,26 @@ router.get('/category/categoryList', async(req, res)=>{
     });
 });
 
-/** 카테고리 해당 의안 가져오기 */
+/** 카테고리 해당 의안 가져오기 + pagination 추가 */
 router.get('/category/search/:categoryName', async(req, res, next)=>{
     try{
         const strc = req.params.categoryName;
+        const queryData = url.parse(req.url, true).query;
+        const pageNum = Number(queryData.page || 1);
+        const pageSize = 10;
+        const offset = pageSize * (pageNum - 1);
+
         console.log(strc);
         if(strc != null) {
-            const cateid = await Bill.findAll({ where: { category: strc } });
+            const cateid = await Bill.findAll({ 
+                offset: offset,
+                limit: pageSize,
+                where: { category: strc }
+            });
             return res.status(200).json({ success: true, str: strc, bills: cateid });
         }
         else{
-            return res.status(200).json({ success: true});
+            return res.status(200).json({ success: false, message: "categoryName in parameter is null" });
         }
     } catch(err) {
         console.log(err);
