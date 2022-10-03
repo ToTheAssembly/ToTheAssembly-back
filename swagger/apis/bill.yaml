@@ -205,3 +205,48 @@ paths:
                   totalcount:
                     type: integer
                     description: "의안 목록 개수"
+  /api/bill/search/{categoryName}:
+    get:
+      summary: "카테고리로 해당 카테고리 갖는 의안들 찾기"
+      description: "params에 categoryName을 담아 Get방식으로 요청"
+      tags: [Bill]
+      parameters:
+        - name: "categoryName"
+          in: "path"
+          required: true
+          description: "카테고리 이름"
+          schema:
+            type: string
+          examples:
+            Sample:
+              value: "산업·에너지·기술·지원·진흥"
+              summary: "example category name"
+      responses:
+        "200":
+          description: "해당 카테고리를 갖는 의안 정보"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  bills:
+                    type: array
+  /api/bill/category/categoryList:
+    get:
+      summary: "카테고리 목록"
+      description: "카테고리 목록"
+      tags: [Bill]
+    responses:
+      "200":
+        description: "25개의 카테고리 목록"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                categories:
+                  type: array
