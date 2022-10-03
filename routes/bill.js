@@ -320,5 +320,39 @@ router.get('/name/:memberId', async(req, res) => {
     })
 });
 
+//카테고리 목록 가져오기
+router.get('/category/categoryList', async(req, res)=>{
+    await Bill.findAll({
+        attributes:  [sequelize.fn('DISTINCT', sequelize.col('category')) ,'category']
+    })
+    .then(result => {
+        return res.status(200).json({
+            success: true,
+            categories: result
+        });
+    })
+    .catch( err => {
+        console.log(err);
+        return res.status(200).json({ success: false });
+    });
+});
+
+/** 카테고리 해당 의안 가져오기 */
+router.get('/category/search/:categoryName', async(req, res, next)=>{
+    try{
+        const strc = req.params.categoryName;
+        console.log(strc);
+        if(strc != null) {
+            const cateid = await Bill.findAll({ where: { category: strc } });
+            return res.status(200).json({ success: true, str: strc, bills: cateid });
+        }
+        else{
+            return res.status(200).json({ success: true});
+        }
+    } catch(err) {
+        console.log(err);
+        return res.status(200).json({ success: false });
+    }
+});
 
 module.exports = router;
