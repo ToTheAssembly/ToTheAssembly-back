@@ -158,15 +158,17 @@ router.get('/thisWeek', async(req, res, next) => {
 
         const query = 'SELECT bill_id FROM (SELECT bill_id, COUNT(id) as cnt FROM likes WHERE createdAt BETWEEN DATE_ADD(NOW(),INTERVAL -1 WEEK ) AND NOW() GROUP BY bill_id ORDER BY cnt DESC LIMIT 5) as thisWeek';
         let [rows, _] = await connection.query(query);
-        let bills = [];
+        let billIds = [];
 
         for (let i = 0; i < rows.length ; i++) {
-            console.log(rows[i]);
-            bills.push(rows[i].bill_id);
+            // console.log(rows[i]);
+            billIds.push(rows[i].bill_id);
         }
         conn.release();
 
-        return res.status(200).json({ success: true, bills: bills });
+        const bills = await Bill.findAll({ where : { id: billIds } });
+
+        return res.status(200).json({ success: true, bills: bills, totalCount: bills.length });
     } catch(err) {
         console.log(err);
         return res.status(200).json({ success: false });

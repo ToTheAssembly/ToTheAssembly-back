@@ -63,8 +63,8 @@ paths:
 
   /api/bill/thisWeek:
     get:
-      summary: "이번주 좋아요 수 가장 많은 의안 0~5개 목록"
-      description: "이번주에 좋아요를 가장 많이 받은 의안 0~5개를 array를 반환"
+      summary: "이번주 좋아요 수 가장 많은 의안 5개 목록"
+      description: "이번주에 좋아요를 가장 많이 받은 의안 5개를 array를 반환. totalCount도 같이 반환"
       tags: [Like]
     responses:
       "200":
@@ -83,6 +83,8 @@ paths:
                     description: "array of 0~5 Bills"
                   minItems: 0
                   maxItems: 5
+                totalCount:
+                  type: integer
 
   /api/bill/{billId}/like:
     post:
