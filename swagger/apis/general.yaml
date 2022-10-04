@@ -2,9 +2,8 @@ paths:
   /api/trend/{period}:
     get:
       summary: "기간에 따른 토픽 트렌드 분석 키워드 반환"
-      description: "params에 2020-06 형태의 월 별 period를 담아 Get방식으로 요청하시면 됩니다. 기간은 2020-06부터 2022-09까지 있습니다. Get 요청을 보내시면 flask 서버로 넘어가서 키워드와 값을 추출해서 넘겨줍니다."
+      description: "params에 YYYY-MM 형태의 월 별 period를 담아 Get방식으로 요청하시면 됩니다. 기간은 2020-06부터 2022-09까지 있습니다. Get 요청을 보내시면 flask 서버로 넘어가서 키워드와 값을 추출해서 넘겨줍니다."
       tags: [Trend]
-      parameters:
       parameters:
         - name: "period"
           in: "path"
