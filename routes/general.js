@@ -68,7 +68,7 @@ function getRandomInt() {
     let a =[];
     let i=1;
     while(i<7){
-        let n =Math.floor(Math.random() * (7)) + 1;
+        let n =Math.floor(Math.random() * (4285)) + 1;
         if(! sameNum(n)){
             a.push(n);
             i++;
