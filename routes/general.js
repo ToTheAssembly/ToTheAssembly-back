@@ -7,14 +7,36 @@ const { Bill, Member, Hashtag } = require('../models');
 const router = express.Router();
 
 
-/** 해시태그 해당 의안 가져오기 */
+/** 토픽 트렌드 분석 키워드 가져오기 */
+router.get('/trend/:period', (req, res) => {
+    axios
+        .post(`${process.env.TREND_API_URL}`, {
+            period: req.params.period,
+        })
+        .then( response => {
+            return res.status(200).send(response.data);
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(200).json({ success: false, message: "Error has occured" });
+        });
+});
+
+
+/** 해시태그 해당 의안 가져오기 + pagination 추가*/
 router.get('/hashtag/search/:hashtagName', async(req, res, next)=>{
     try{
         const str = req.params.hashtagName;
+        const queryData = url.parse(req.url, true).query;
+        const pageNum = Number(queryData.page || 1);
+        const pageSize = 10;
+        const offset = pageSize * (pageNum - 1);
+        
         console.log(str);
         if(str != null) {
             const hashidr = await Hashtag.findOne({ where: { name: str } });
-            const billhashid = await hashidr.getBills();
+            console.log(hashidr);
+            const billhashid = await hashidr.getBills({ offset:offset, limit:pageSize });
             return res.status(200).json({ success: true, str: str, bills: billhashid });
         }
     } catch(err) {
@@ -46,7 +68,7 @@ function getRandomInt() {
     let a =[];
     let i=1;
     while(i<7){
-        let n =Math.floor(Math.random() * (7)) + 1;
+        let n =Math.floor(Math.random() * (4285)) + 1;
         if(! sameNum(n)){
             a.push(n);
             i++;
